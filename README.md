@@ -28,7 +28,7 @@ A simple starter C++ repo with Raylib and CMake
 
 Clone, change the directory name, and cd into it
 
-```
+```bash
 git clone https://github.com/proc0/raylib-starter.git
 move raylib-starter my-project
 cd my-project
@@ -37,23 +37,25 @@ cd my-project
 Run the build script
 On Windows
 
-```
+```PowerShell
 .\build.bat
 ```
 
 On Linux
 
-```
+```bash
 chmod +x ./build.sh
 ./build.sh
 ```
 
 ## Folder structure
 
+```
+my-project
 ├───.vscode
 ├───bin # executables
 ├───cmake # cmake build cache files
-│ └───CMakeFiles ...
 ├───include # header files
 ├───resource # assets
 └───source # source files
+```
