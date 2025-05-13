@@ -1,0 +1,6 @@
+#pragma once
+
+#define VERSION "@PROJECT_VERSION@"
+#define MODE_DEBUG @DEBUG_MODE@
+#define DATE_BUILD "@BUILD_DATE@"
+#define PATH_RESOURCE "@PROJECT_RESOURCE@"
