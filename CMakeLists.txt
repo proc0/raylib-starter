@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
+set(CMAKE_CXX_STANDARD 17)
 
 set(PROJECT_NAME "Example")
 set(PROJECT_VERSION "1.0.0")
-set(DEFAULT_DEBUG ON)
-set(DEFAULT_PLATFORM WINDOWS)
 # Project directories relative to root
 set(PROJECT_SOURCE "source")
 set(PROJECT_INCLUDE "include")
@@ -14,15 +13,16 @@ set(PROJECT_BUILD_WEB "web")
 # Dependencies absolute paths
 set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
+# Settings
+set(DEFAULT_DEBUG ON)
+set(DEFAULT_PLATFORM WINDOWS)
 
-# Define project
+# Project definition, source and include files
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_NAME} LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
-# Define source and include files and directories
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_SOURCE}/*.cpp")
 set(PROJECT_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_INCLUDE}")
 
-# Project
+# Compile definition
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
@@ -35,10 +35,10 @@ if(PLATFORM STREQUAL WEB)
 
     add_library(raylib STATIC IMPORTED)
     set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB_WEB}")
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
-    
-    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}")
     target_link_libraries(${PROJECT_NAME} raylib)
+    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}")
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
     target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB)
     target_compile_options(${PROJECT_NAME} PRIVATE 
         -Os 
@@ -48,7 +48,6 @@ if(PLATFORM STREQUAL WEB)
         -Wunused-result
     )
     target_link_options(${PROJECT_NAME} PRIVATE 
-        -sUSE_GLFW=3 
         -sASYNCIFY 
         -sWASM=1 
         -sTOTAL_MEMORY=67108864 
@@ -68,7 +67,6 @@ else()
     target_link_libraries(${PROJECT_NAME} raylib winmm)
 endif()
 
-
 # Get current date
 execute_process(COMMAND date "+%Y-%m-%d %H:%M:%S" OUTPUT_VARIABLE OUTPUT_DATE)
 string(STRIP "${OUTPUT_DATE}" BUILD_DATE)
@@ -78,9 +76,11 @@ if(DEBUG_MODE)
     message(STATUS "Debug mode is ON")
 endif()
 
-# Configure file
+# Preprocess config file macros if file exists
 set(PATH_CONFIG "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_INCLUDE}/${PROJECT_CONFIG}")
-configure_file("${PATH_CONFIG}.h.in" "${PATH_CONFIG}.h")
+if(EXISTS "${PATH_CONFIG}.h.in")
+    configure_file("${PATH_CONFIG}.h.in" "${PATH_CONFIG}.h")
+endif()
 
 # Create build folder
 if(PLATFORM STREQUAL WEB)

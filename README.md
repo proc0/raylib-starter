@@ -50,6 +50,12 @@ chmod +x ./build.sh
 ./build.sh
 ```
 
+For Web pass --web flag (all platforms)
+
+```bash
+./build.sh --web
+```
+
 ## Folder structure
 
 ```
