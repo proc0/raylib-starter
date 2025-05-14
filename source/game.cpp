@@ -21,6 +21,7 @@ void Game::Update(){
 
 void Game::Render() const {
     ClearBackground(BLACK);
+    DrawRectangleGradientH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLUE, GREEN);
     const char* countText = TextFormat("Count: %i", count);
     DrawText(countText, 50, 50, 20, RED);
 }

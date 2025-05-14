@@ -26,6 +26,11 @@ A simple starter C++ repo with Raylib and CMake
   - probably ready to go but have not tested yet
 - Mac (future)
 
+## Lib Requirements
+
+- [Raylib](https://github.com/raysan5/raylib)
+- [Raylib built for web](<https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5)>)
+
 ## Usage
 
 Clone, change the directory name, and cd into it

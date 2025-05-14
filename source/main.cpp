@@ -1,7 +1,7 @@
 #include "game.hpp"
 
 int main(void){
-    InitWindow(1280, 720, "Example");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Example");
     InitAudioDevice();
 
     Game NewGame;

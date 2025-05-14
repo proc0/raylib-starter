@@ -1,0 +1,7 @@
+TODO: add install cmake commands for supported platforms (add logic to switch asset paths and copy the assets for release)
+TODO: add more details and reformat README
+TODO: investigate DWARF warning when building for web (something is adding -g to the compile options, check with cmake --build ... --verbose)
+TODO: add support for downloading raylib and build raylib locally, with options for OPENGL_ES2 or OPENGL_ES3 when compiling for web
+TODO: add Linux/Mac support and test it
+TODO: derive app name from folder name and set the variable in cmake config.h.in
+TODO: add more default elements that test different graphic modes, like acid test, so it can be validated on different builds

@@ -48,7 +48,8 @@ if(PLATFORM STREQUAL WEB)
         -Wunused-result
     )
     target_link_options(${PROJECT_NAME} PRIVATE 
-        -sASYNCIFY 
+        -FULL_ES3
+        -sASYNCIFY
         -sWASM=1 
         -sTOTAL_MEMORY=67108864 
         -sFORCE_FILESYSTEM=1 
