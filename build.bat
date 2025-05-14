@@ -15,7 +15,7 @@ if "%web_build%"=="true" (
         emcmake cmake -S . -B build-web
     )
     cmake build-web
-    cmake --build build-web
+    cmake --build build-web --verbose
     @REM cmake --install build-web
 ) else (
     echo Building for desktop...

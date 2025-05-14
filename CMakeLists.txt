@@ -36,7 +36,7 @@ if(PLATFORM STREQUAL WEB)
     add_library(raylib STATIC IMPORTED)
     set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB_WEB}")
     target_link_libraries(${PROJECT_NAME} raylib)
-    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}")
+    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}" PRIVATE "C:/emsdk/upstream/emscripten/cache/sysroot/include/emscripten")
 
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
     target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB)
@@ -48,7 +48,7 @@ if(PLATFORM STREQUAL WEB)
         -Wunused-result
     )
     target_link_options(${PROJECT_NAME} PRIVATE 
-        -FULL_ES3
+        -sFULL_ES3 #remove if Raylib was not compiled for Web with OpenGL ES3
         -sASYNCIFY
         -sWASM=1 
         -sTOTAL_MEMORY=67108864 

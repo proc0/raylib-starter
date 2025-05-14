@@ -12,10 +12,14 @@
 class Game {
     int count;
     Sound splat;
+    Color ballColor = RED;
+    Vector2 ballPosition = { -100.0f, -100.0f };
+    bool isCursorHidden = false;
 
     public:
         void Load();
+        void Loop();
+        void Render() const;
         void Unload();
         void Update();
-        void Render() const;
 };
