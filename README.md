@@ -11,6 +11,7 @@ A simple starter C++ repo with Raylib and CMake
   - Config file with some reflexive variables like version and debug mode
 - Compiles with MinGW Makefiles on Windows
   - C++ 17 (future: add easy way to change standards including C)
+- Compiles with Emscripten on Windows
 - Includes script for easily invoking build step
 - Includes some basic .vscode configuration
 - Future support for SublimeText, maybe NeoVim
@@ -20,6 +21,7 @@ A simple starter C++ repo with Raylib and CMake
 - Windows
   - [w64devkit](https://github.com/skeeto/w64devkit)
   - [CMake](https://cmake.org)
+  - [Emscripten](https://emscripten.org)
 - Linux (future)
   - probably ready to go but have not tested yet
 - Mac (future)

@@ -1,9 +1,9 @@
 #!/usr/bin/bash
 
 if [ ! -d "cmake" ]; then
-  cmake -S . -B cmake -G "Unix Makefiles"
+  cmake -S . -B build -G "Unix Makefiles"
 fi
 
-cmake cmake
-cmake --build cmake
-cmake --install cmake
+cmake build
+cmake --build build
+cmake --install build

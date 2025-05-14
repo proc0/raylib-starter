@@ -1,8 +1,11 @@
 # Build files
 bin/*
+web/*
 
 # CMake cache
 cmake/*
+build/*
+build-web/*
 
 # Prerequisites
 *.d

@@ -1,7 +1,7 @@
-if not exist cmake (
-    cmake -S . -B cmake -G "MinGW Makefiles"
+if not exist build (
+    cmake -S . -B build -G "MinGW Makefiles"
 )
 
-cmake cmake
-cmake --build cmake
-cmake --install cmake
+cmake build
+cmake --build build
+cmake --install build
