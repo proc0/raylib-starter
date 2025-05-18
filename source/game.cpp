@@ -39,14 +39,14 @@ void Game::Render() const {
     DrawRectangleGradientH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLUE, GREEN);
     DrawCircleV(ballPosition, 40, ballColor);
     const char* countText = TextFormat("Count: %i", count);
-    DrawText(countText, 50, 50, 20, RED);
-    if (isCursorHidden == 1) DrawText("CURSOR HIDDEN", 20, 60, 20, RED);
-    else DrawText("CURSOR VISIBLE", 20, 60, 20, LIME);
+    DrawText(countText, 50, 50, 20, WHITE);
+    if (isCursorHidden == 1) DrawText("CURSOR HIDDEN", SCREEN_WIDTH/2-100, 60, 20, BLACK);
+    else DrawText("CURSOR VISIBLE", SCREEN_WIDTH/2-100, 60, 20, WHITE);
 }
 
 void Game::Loop() {
     Update();
-    
+
     BeginDrawing();
     Render();
     EndDrawing();
