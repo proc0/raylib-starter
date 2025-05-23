@@ -67,7 +67,7 @@ For Web pass --web flag (all platforms)
 my-project
 ├───.vscode
 ├───bin # executables
-├───cmake # cmake build cache files
+├───build # cmake build cache files
 ├───include # header files
 ├───resource # assets
 └───source # source files

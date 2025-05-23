@@ -5,7 +5,7 @@ web/*
 # CMake cache
 cmake/*
 build/*
-build-web/*
+build-*/*
 
 # Prerequisites
 *.d

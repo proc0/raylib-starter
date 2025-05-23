@@ -1,32 +1,36 @@
 #!/usr/bin/bash
 
-# get args and check for --web
-web=false
+DIR_BUILD=build
+DIR_BUILD_WEB=build-web
+PLATFORM_WEB=false
+
+command -v cmake >/dev/null 2>&1 || { echo >&2 "CMake is not installed or not in the PATH. Please install CMake and add it to your PATH."; exit 1; }
+
 for arg in "$@"
 do
   if [ "$arg" == "--web" ]; then
-    web=true
+    PLATFORM_WEB=true
   fi
 done
 
-if [ "$web" = true ]; then
-  if [ ! -d "build-web" ]; then
-    mkdir build-web
-    emcmake cmake -S . -B build-web
+if [ "$PLATFORM_WEB" = true ]; then
+  if [ ! -d "$DIR_BUILD_WEB" ]; then
+    mkdir $DIR_BUILD_WEB
+    emcmake cmake -S . -B $DIR_BUILD_WEB
   fi
 
-  cmake build-web
-  cmake --build build-web
-  # cmake --install build-web
+  cmake $DIR_BUILD_WEB
+  cmake --build $DIR_BUILD_WEB
+  # cmake --install $DIR_BUILD_WEB
 else
 
-  if [ ! -d "build" ]; then
-    mkdir build
-    cmake -S . -B build -G "Unix Makefiles"
+  if [ ! -d "$DIR_BUILD" ]; then
+    mkdir $DIR_BUILD
+    cmake -S . -B $DIR_BUILD -G "Unix Makefiles"
   fi
 
-  cmake build
-  cmake --build build
-  # cmake --install build
+  cmake $DIR_BUILD
+  cmake --build $DIR_BUILD
+  # cmake --install $DIR_BUILD
 fi
 

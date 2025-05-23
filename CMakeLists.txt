@@ -9,7 +9,7 @@ set(PROJECT_INCLUDE "include")
 set(PROJECT_RESOURCE "resource")
 set(PROJECT_CONFIG "config")
 set(PROJECT_BUILD "bin")
-set(PROJECT_BUILD_WEB "web")
+set(PROJECT_BUILD_WEB "build-web")
 # Dependencies absolute paths
 set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
