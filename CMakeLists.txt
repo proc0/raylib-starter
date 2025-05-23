@@ -4,30 +4,39 @@ set(CMAKE_CXX_STANDARD 17)
 set(PROJECT_NAME "Example")
 set(PROJECT_VERSION "1.0.0")
 # Project directories relative to root
-set(PROJECT_SOURCE "source")
-set(PROJECT_INCLUDE "include")
-set(PROJECT_RESOURCE "resource")
-set(PROJECT_CONFIG "config")
-set(PROJECT_BUILD "bin")
-set(PROJECT_BUILD_WEB "build-web")
+set(DIR_SOURCE "source")
+set(DIR_INCLUDE "include")
+set(DIR_RESOURCE "resource")
+set(FILE_CONFIG "config")
+set(DIR_INSTALL "bin")
+set(DIR_INSTALL_WEB "web")
 # Dependencies absolute paths
 set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
+
 # Settings
 set(DEFAULT_DEBUG ON)
-set(DEFAULT_PLATFORM WINDOWS)
+
+if(WIN32)
+    set(DEFAULT_PLATFORM WINDOWS)
+elseif(MACOS)
+    set(DEFAULT_PLATFORM MACOS)
+else()
+    set(DEFAULT_PLATFORM LINUX)
+endif()
 
 # Project definition, source and include files
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_NAME} LANGUAGES CXX)
-file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_SOURCE}/*.cpp")
-set(PROJECT_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_INCLUDE}")
+file(GLOB_RECURSE DIR_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${DIR_SOURCE}/*.cpp")
+set(DIR_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}")
 
 # Compile definition
 add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
+target_sources(${PROJECT_NAME} PRIVATE ${DIR_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_INCLUDES})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS DEBUG_MODE=${DEFAULT_DEBUG} COMPILE_DEFINITIONS PLATFORM=${DEFAULT_PLATFORM})
 
+# Local static Raylib
 if(PLATFORM STREQUAL WEB)
     message(STATUS "Configuring Raylib for Web")
     find_library(PATH_RAYLIB_WEB raylib PATHS "${LOCAL_RAYLIB_WEB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
@@ -54,7 +63,7 @@ if(PLATFORM STREQUAL WEB)
         -sTOTAL_MEMORY=67108864 
         -sFORCE_FILESYSTEM=1 
         -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
-        --preload-file "../${PROJECT_RESOURCE}" 
+        --preload-file "../${DIR_RESOURCE}" 
         --shell-file "${LOCAL_RAYLIB}/shell.html" 
         --emrun
     )
@@ -78,20 +87,16 @@ if(DEBUG_MODE)
 endif()
 
 # Preprocess config file macros if file exists
-set(PATH_CONFIG "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_INCLUDE}/${PROJECT_CONFIG}")
+set(PATH_CONFIG "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}/${FILE_CONFIG}")
 if(EXISTS "${PATH_CONFIG}.h.in")
     configure_file("${PATH_CONFIG}.h.in" "${PATH_CONFIG}.h")
 endif()
 
 # Create build folder
 if(PLATFORM STREQUAL WEB)
-    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_BUILD_WEB}")
+    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL_WEB}")
 else()
-    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${PROJECT_BUILD}")
-endif()
-
-if(NOT EXISTS "${PATH_BUILD}")
-    file(MAKE_DIRECTORY "${PATH_BUILD}")
+    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}")
 endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION "${PATH_BUILD}")
