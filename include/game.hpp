@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#define WAV_SOUND_SPLAT "splat1.wav"
+#define URI_SOUND_SPLAT "splat1.wav"
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 

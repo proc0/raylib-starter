@@ -1,8 +1,8 @@
 #include "game.hpp"
 
 void Game::Load(){
-    std::string pathResource = PATH_RESOURCE;
-    const char* pathSoundSplat = pathResource.append("/").append(WAV_SOUND_SPLAT).c_str();
+    std::string pathResource = DIR_RESOURCE;
+    const char* pathSoundSplat = pathResource.append("/").append(URI_SOUND_SPLAT).c_str();
 
     splat = LoadSound(pathSoundSplat);
     count = 0;

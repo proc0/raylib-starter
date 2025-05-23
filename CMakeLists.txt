@@ -15,7 +15,7 @@ set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
 
 # Settings
-set(DEFAULT_DEBUG ON)
+set(DEFAULT_DEBUG 1)
 
 if(WIN32)
     set(DEFAULT_PLATFORM WINDOWS)
@@ -34,7 +34,8 @@ set(DIR_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}")
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE ${DIR_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_INCLUDES})
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS DEBUG_MODE=${DEFAULT_DEBUG} COMPILE_DEFINITIONS PLATFORM=${DEFAULT_PLATFORM})
+target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG_BUILD=${DEFAULT_DEBUG})
+target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM=${DEFAULT_PLATFORM})
 
 # Local static Raylib
 if(PLATFORM STREQUAL WEB)
@@ -79,10 +80,10 @@ endif()
 
 # Get current date
 execute_process(COMMAND date "+%Y-%m-%d %H:%M:%S" OUTPUT_VARIABLE OUTPUT_DATE)
-string(STRIP "${OUTPUT_DATE}" BUILD_DATE)
+string(STRIP "${OUTPUT_DATE}" DATE_BUILD)
 
 # Debug placeholder
-if(DEBUG_MODE)
+if(DEBUG_BUILD)
     message(STATUS "Debug mode is ON")
 endif()
 
