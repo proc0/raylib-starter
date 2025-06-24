@@ -1,20 +1,23 @@
 cmake_minimum_required(VERSION 3.18)
 set(CMAKE_CXX_STANDARD 17)
 
-set(PROJECT_NAME "Example")
-set(PROJECT_VERSION "1.0.0")
-# Project directories relative to root
+# Settings
+set(PROJECT_NAME "RaylibStarter")
+set(PROJECT_VERSION "0.0.1")
+## Project directories relative to root
 set(DIR_SOURCE "source")
 set(DIR_INCLUDE "include")
 set(DIR_RESOURCE "resource")
-set(FILE_CONFIG "config")
 set(DIR_INSTALL "bin")
 set(DIR_INSTALL_WEB "web")
-# Dependencies absolute paths
+## Optional config file inside of include directory
+set(FILE_CONFIG "config")
+
+## Dependencies absolute paths
 set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
 
-# Settings
+# Default flags
 set(DEFAULT_DEBUG 1)
 
 if(WIN32)
@@ -58,7 +61,7 @@ if(PLATFORM STREQUAL WEB)
         -Wunused-result
     )
     target_link_options(${PROJECT_NAME} PRIVATE 
-        -sFULL_ES3 #remove if Raylib was not compiled for Web with OpenGL ES3
+        -sFULL_ES3 # requires Raylib to be compiled for Web with OpenGL ES3
         -sASYNCIFY
         -sWASM=1 
         -sTOTAL_MEMORY=67108864 
