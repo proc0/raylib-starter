@@ -3,7 +3,9 @@ setlocal enabledelayedexpansion
 
 set "DIR_BUILD=build"
 set "DIR_BUILD_WEB=build-web"
-set "PLATFORM_WEB=false"
+set "PLATFORM=Desktop"
+set "BUILD_TYPE=Debug"
+set "GENERATOR=MinGW Makefiles"
 
 where cmake >nul 2>nul
 if %errorlevel% neq 0 (
@@ -11,31 +13,47 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+@REM capture and forward arguments to cmake
+set "args="
 for %%a in (%*) do (
     if "%%a"=="--web" (
-        set "PLATFORM_WEB=true"
+        set "PLATFORM=Web"
+    ) else (
+        if not defined args (
+            set "args=%%a"
+        ) else (
+            set "args=!args! %%a"
+        )
     )
 )
 
-if "%PLATFORM_WEB%"=="true" (
-    echo Building for web...
+if "%PLATFORM%"=="Web" (
+    echo Building for Web...
+
     if not exist %DIR_BUILD_WEB% (
-        mkdir build-web
+        mkdir %DIR_BUILD_WEB%
         emcmake cmake -S . -B %DIR_BUILD_WEB%
     )
-    cmake %DIR_BUILD_WEB%
+
+    cmake %DIR_BUILD_WEB% -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DPLATFORM=%PLATFORM%
     cmake --build %DIR_BUILD_WEB% --verbose
+
     @REM cmake --install %DIR_BUILD_WEB%
 ) else (
-    echo Building for desktop...
+    echo Building for Desktop...
+
     if not exist %DIR_BUILD% (
-        cmake -S . -B %DIR_BUILD% -G "MinGW Makefiles"
+        mkdir %DIR_BUILD%
+        cmake -S . -B %DIR_BUILD% -G "%GENERATOR%"
     )
     
-    cmake %DIR_BUILD%
-    cmake --build %DIR_BUILD%
+    cmake %DIR_BUILD% -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DPLATFORM=%PLATFORM%
+
+    if defined args (
+        cmake --build %DIR_BUILD% "%args%"
+    ) else (
+        cmake --build %DIR_BUILD%
+    )
+    
     @REM cmake --install %DIR_BUILD%
 )
-
-
-
