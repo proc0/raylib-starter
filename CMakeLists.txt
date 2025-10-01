@@ -8,38 +8,40 @@ set(PROJECT_VERSION "0.0.1")
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_NAME} LANGUAGES CXX)
 
-
 #                         SETTINGS
 #═══════════════════════════════════════════════════════════════
 # directories relative to root
-set(DIR_ASSETS "assets")
-set(DIR_INCLUDE "include")
-set(DIR_INSTALL "bin")
-set(DIR_INSTALL_WEB "web")
-set(DIR_SOURCE "src")
-set(FILE_CONFIG "config") #config file inside of include directory (optional)
+set(DIR_SOURCE "src" CACHE STRING "Project source files folder name")
+set(DIR_INCLUDE "include" CACHE STRING "Project header files folder name")
+set(DIR_ASSETS "assets" CACHE STRING "Project assets folder name")
+set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
+set(DIR_INSTALL_WEB "web" CACHE STRING "Project web install folder name")
+set(FILE_CONFIG "config" CACHE STRING "Optional config file name")
 
-# Raylib settings
-option(USE_RAYLIB_FETCH "Use Raylib by fetching and building in project" OFF)
-option(USE_RAYLIB_CUSTOM "Use custom Raylib modules" OFF)
-
-# Local Raylib - provide local machine absolute paths
-option(USE_RAYLIB_LOCAL "Use a local build of Raylib" ON)
+# Raylib settings - ONLY ONE SHOULD BE ON
+option(USE_RAYLIB_FETCH "Fetch and build from source" OFF)
+option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
+option(USE_RAYLIB_LOCAL "Find and use a local build" ON)
+# Local Raylib paths 
 set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
+# Local Raylib Web - Emscripten build include path
 set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include/emscripten")
 
 #                        REFLECTION
 #═══════════════════════════════════════════════════════════════
 
-# Internal flags
+# Build type flags
 set(BUILD_DEBUG OFF)
 set(BUILD_RELEASE OFF)
 set(PLATFORM_DESKTOP OFF)
 set(PLATFORM_WEB OFF)
+# Config file specific flags
+set(IS_DEBUG 0)
 
 if(BUILD_TYPE STREQUAL Debug)
     set(BUILD_DEBUG ON)
+    set(IS_DEBUG 1)
 endif()
 
 if(PLATFORM STREQUAL Desktop)
@@ -70,27 +72,31 @@ target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 set(PROJECT_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}")
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
 
-# Compile definition
-# target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG_BUILD=${BUILD_TYPE})
-# target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM=${OS})
-
 #                           RAYLIB
 #═══════════════════════════════════════════════════════════════
 
-# Local static Raylib
+# Local Raylib Desktop
 if(USE_RAYLIB_LOCAL AND PLATFORM_DESKTOP)
-    # message(STATUS "Configuring Raylib for Windows")
+    if(EXISTS "${LOCAL_RAYLIB}")
+        message(STATUS "Using local Raylib: ${LOCAL_RAYLIB}")
+    else()
+        message(FATAL_ERROR "SETTINGS ERROR: Local Raylib path: ${LOCAL_RAYLIB} does not exist!")
+    endif()
+
     find_library(PATH_RAYLIB raylib PATHS "${LOCAL_RAYLIB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
-    message(STATUS "Using Raylib: ${PATH_RAYLIB}")
 
     add_library(raylib STATIC IMPORTED)
     set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB}")
-    target_link_libraries(${PROJECT_NAME} raylib winmm)
+
+    if(OS STREQUAL Windows)
+        target_link_libraries(${PROJECT_NAME} raylib winmm)
+    else()
+        target_link_libraries(${PROJECT_NAME} raylib)
+    endif()
 endif()
 
-# Local static Raylib Web
+# Local Raylib Web
 if(USE_RAYLIB_LOCAL AND PLATFORM_WEB)
-    # message(STATUS "Configuring Raylib for Web")
     find_library(PATH_RAYLIB_WEB raylib PATHS "${LOCAL_RAYLIB_WEB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
     message(STATUS "Using Raylib: ${PATH_RAYLIB_WEB}")
 
@@ -135,13 +141,13 @@ endif()
 
 #                         INSTALL
 #═══════════════════════════════════════════════════════════════
-# Create build folder
-if(PLATFORM_WEB)
-    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL_WEB}")
-endif()
-
+# Set build folder
 if(PLATFORM_DESKTOP)
     set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}")
 endif()
 
+if(PLATFORM_WEB)
+    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL_WEB}")
+endif()
+# Install files
 install(TARGETS ${PROJECT_NAME} DESTINATION "${PATH_BUILD}")

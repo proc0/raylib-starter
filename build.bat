@@ -37,7 +37,12 @@ if "%PLATFORM%"=="Web" (
     )
     
     cmake %DIR_BUILD_WEB% -DBUILD_TYPE=%BUILD_TYPE% -DPLATFORM=%PLATFORM%
-    cmake --build %DIR_BUILD_WEB% --verbose
+    
+    if defined args (
+        cmake --build %DIR_BUILD_WEB% "%args%"
+    ) else (
+        cmake --build %DIR_BUILD_WEB%
+    )
 
     @REM cmake --install %DIR_BUILD_WEB%
 ) else (

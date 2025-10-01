@@ -1,6 +1,6 @@
 #pragma once
 
 #define VERSION "@PROJECT_VERSION@"
-#define IS_DEBUG @DEBUG_BUILD@
+#define IS_DEBUG @IS_DEBUG@
 #define DATE_BUILD "@DATE_BUILD@"
 #define DIR_ASSETS "@DIR_ASSETS@"
