@@ -17,57 +17,87 @@ set(DIR_INCLUDE "include")
 set(DIR_INSTALL "bin")
 set(DIR_INSTALL_WEB "web")
 set(DIR_SOURCE "src")
-# optional config file inside of include directory
-set(FILE_CONFIG "config")
+set(FILE_CONFIG "config") #config file inside of include directory (optional)
 
-# Raylib dependencies absolute paths
+# Raylib settings
+option(USE_RAYLIB_FETCH "Use Raylib by fetching and building in project" OFF)
+option(USE_RAYLIB_CUSTOM "Use custom Raylib modules" OFF)
+
+# Local Raylib - provide local machine absolute paths
+option(USE_RAYLIB_LOCAL "Use a local build of Raylib" ON)
 set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
+set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include/emscripten")
 
-#                          OPTIONS
+#                        REFLECTION
 #═══════════════════════════════════════════════════════════════
-# Only one form of Raylib is used
-option(USE_RAYLIB "Use Raylib by fetching and building it in project" OFF)
-option(USE_RAYLIB_MINIMAL "Use minimal Raylib modules" OFF)
-option(USE_RAYLIB_LOCAL "Use a local build of Raylib" ON)
 
-# Debug placeholder
-if(DEBUG_BUILD)
-    message(STATUS "DEBUG mode is ON")
+# Internal flags
+set(BUILD_DEBUG OFF)
+set(BUILD_RELEASE OFF)
+set(PLATFORM_DESKTOP OFF)
+set(PLATFORM_WEB OFF)
+
+if(BUILD_TYPE STREQUAL Debug)
+    set(BUILD_DEBUG ON)
 endif()
 
-# Default flags
-set(DEFAULT_DEBUG 1)
+if(PLATFORM STREQUAL Desktop)
+    set(PLATFORM_DESKTOP ON)
+endif()
+
+if(PLATFORM STREQUAL Web)
+    set(PLATFORM_WEB ON)
+endif()
 
 if(WIN32)
-    set(DEFAULT_PLATFORM WINDOWS)
+    set(OS Windows)
 elseif(MACOS)
-    set(DEFAULT_PLATFORM MACOS)
+    set(OS MacOS)
 else()
-    set(DEFAULT_PLATFORM LINUX)
+    set(OS Linux)
 endif()
 
-# Project definition, source and include files
+message(STATUS "\n-- ${OS} ${PLATFORM} ${BUILD_TYPE} Build \n--")
+
+#                         DEFINITION
+#═══════════════════════════════════════════════════════════════
+add_executable(${PROJECT_NAME})
+# source files
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${DIR_SOURCE}/*.cpp")
+target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
+# include files
 set(PROJECT_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}")
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
 
 # Compile definition
-add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
-target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG_BUILD=${DEFAULT_DEBUG})
-target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM=${DEFAULT_PLATFORM})
+# target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG_BUILD=${BUILD_TYPE})
+# target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM=${OS})
+
+#                           RAYLIB
+#═══════════════════════════════════════════════════════════════
 
 # Local static Raylib
-if(PLATFORM STREQUAL WEB)
-    message(STATUS "Configuring Raylib for Web")
+if(USE_RAYLIB_LOCAL AND PLATFORM_DESKTOP)
+    # message(STATUS "Configuring Raylib for Windows")
+    find_library(PATH_RAYLIB raylib PATHS "${LOCAL_RAYLIB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
+    message(STATUS "Using Raylib: ${PATH_RAYLIB}")
+
+    add_library(raylib STATIC IMPORTED)
+    set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB}")
+    target_link_libraries(${PROJECT_NAME} raylib winmm)
+endif()
+
+# Local static Raylib Web
+if(USE_RAYLIB_LOCAL AND PLATFORM_WEB)
+    # message(STATUS "Configuring Raylib for Web")
     find_library(PATH_RAYLIB_WEB raylib PATHS "${LOCAL_RAYLIB_WEB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
     message(STATUS "Using Raylib: ${PATH_RAYLIB_WEB}")
 
     add_library(raylib STATIC IMPORTED)
     set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB_WEB}")
     target_link_libraries(${PROJECT_NAME} raylib)
-    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}" PRIVATE "C:/emsdk/upstream/emscripten/cache/sysroot/include/emscripten")
+    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}" PRIVATE "${LOCAL_EM_INCLUDE}")
 
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
     target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB)
@@ -89,14 +119,6 @@ if(PLATFORM STREQUAL WEB)
         --shell-file "${LOCAL_RAYLIB}/shell.html" 
         --emrun
     )
-else()
-    message(STATUS "Configuring Raylib for Windows")
-    find_library(PATH_RAYLIB raylib PATHS "${LOCAL_RAYLIB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
-    message(STATUS "Using Raylib: ${PATH_RAYLIB}")
-
-    add_library(raylib STATIC IMPORTED)
-    set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB}")
-    target_link_libraries(${PROJECT_NAME} raylib winmm)
 endif()
 
 #                         METADATA
@@ -114,9 +136,11 @@ endif()
 #                         INSTALL
 #═══════════════════════════════════════════════════════════════
 # Create build folder
-if(PLATFORM STREQUAL WEB)
+if(PLATFORM_WEB)
     set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL_WEB}")
-else()
+endif()
+
+if(PLATFORM_DESKTOP)
     set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}")
 endif()
 

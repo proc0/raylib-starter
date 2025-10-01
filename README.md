@@ -69,8 +69,9 @@ my-project
 
 ## Build Script Usage
 
-build{.sh|.bat} [--web] [--release] [<options>]
+build{.sh|.bat} [--web] [--release] [--run] [<options>]
 
 --web: build for web using Emscripten
 --release: build for release
+--run: run executable after build
 <options>: additional options given to CMake build command

@@ -2,6 +2,7 @@
 
 DIR_BUILD=build
 DIR_BUILD_WEB=build-web
+
 PLATFORM=Desktop
 BUILD_TYPE=Debug
 GENERATOR="Unix Makefiles"
@@ -17,26 +18,26 @@ do
 done
 
 if [ "$PLATFORM" = "Web" ]; then
-  echo Building for Web...
+  # Building for Web...
 
   if [ ! -d "$DIR_BUILD_WEB" ]; then
     mkdir $DIR_BUILD_WEB
     emcmake cmake -S . -B $DIR_BUILD_WEB
   fi
 
-  cmake $DIR_BUILD_WEB -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPLATFORM=$PLATFORM
+  cmake $DIR_BUILD_WEB -DBUILD_TYPE=$BUILD_TYPE -DPLATFORM=$PLATFORM
   cmake --build $DIR_BUILD_WEB
 
   # cmake --install $DIR_BUILD_WEB
 else
-  echo Building for Desktop...
+  # Building for Desktop...
 
   if [ ! -d "$DIR_BUILD" ]; then
     mkdir $DIR_BUILD
     cmake -S . -B $DIR_BUILD -G "$GENERATOR"
   fi
 
-  cmake $DIR_BUILD -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPLATFORM=$PLATFORM
+  cmake $DIR_BUILD -DBUILD_TYPE=$BUILD_TYPE -DPLATFORM=$PLATFORM
   cmake --build $DIR_BUILD
 
   # cmake --install $DIR_BUILD
