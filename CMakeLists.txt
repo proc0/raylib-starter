@@ -24,6 +24,13 @@ set(FILE_CONFIG "config")
 set(LOCAL_RAYLIB "C:/raylib/raylib/src")
 set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
 
+#                          OPTIONS
+#═══════════════════════════════════════════════════════════════
+# Only one form of Raylib is used
+option(USE_RAYLIB "Use Raylib by fetching and building it in project" OFF)
+option(USE_RAYLIB_MINIMAL "Use minimal Raylib modules" OFF)
+option(USE_RAYLIB_LOCAL "Use a local build of Raylib" ON)
+
 # Debug placeholder
 if(DEBUG_BUILD)
     message(STATUS "DEBUG mode is ON")

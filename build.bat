@@ -34,7 +34,7 @@ if "%PLATFORM%"=="Web" (
         mkdir %DIR_BUILD_WEB%
         emcmake cmake -S . -B %DIR_BUILD_WEB%
     )
-
+    
     cmake %DIR_BUILD_WEB% -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DPLATFORM=%PLATFORM%
     cmake --build %DIR_BUILD_WEB% --verbose
 

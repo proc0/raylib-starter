@@ -4,6 +4,7 @@ DIR_BUILD=build
 DIR_BUILD_WEB=build-web
 PLATFORM=Desktop
 BUILD_TYPE=Debug
+GENERATOR="Unix Makefiles"
 
 command -v cmake >/dev/null 2>&1 || { echo >&2 "CMake is not installed or not in the PATH. Please install CMake and add it to your PATH."; exit 1; }
 
@@ -32,7 +33,7 @@ else
 
   if [ ! -d "$DIR_BUILD" ]; then
     mkdir $DIR_BUILD
-    cmake -S . -B $DIR_BUILD -G "Unix Makefiles"
+    cmake -S . -B $DIR_BUILD -G "$GENERATOR"
   fi
 
   cmake $DIR_BUILD -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPLATFORM=$PLATFORM
