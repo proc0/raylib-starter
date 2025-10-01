@@ -10,12 +10,11 @@ project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_NAME} L
 
 #                         SETTINGS
 #═══════════════════════════════════════════════════════════════
-# directories relative to root
 set(DIR_SOURCE "src" CACHE STRING "Project source files folder name")
 set(DIR_INCLUDE "include" CACHE STRING "Project header files folder name")
 set(DIR_ASSETS "assets" CACHE STRING "Project assets folder name")
 set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
-set(DIR_INSTALL_WEB "web" CACHE STRING "Project web install folder name")
+set(DIR_PUBLISH "web" CACHE STRING "Project web install folder name")
 set(FILE_CONFIG "config" CACHE STRING "Optional config file name")
 
 # Raylib settings - ONLY ONE SHOULD BE ON
@@ -34,8 +33,8 @@ set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include/emscrip
 # Build type flags
 set(BUILD_DEBUG OFF)
 set(BUILD_RELEASE OFF)
-set(PLATFORM_DESKTOP OFF)
-set(PLATFORM_WEB OFF)
+set(BUILD_DESKTOP OFF)
+set(BUILD_WEB OFF)
 # Config file specific flags
 set(IS_DEBUG 0)
 
@@ -45,11 +44,11 @@ if(BUILD_TYPE STREQUAL Debug)
 endif()
 
 if(PLATFORM STREQUAL Desktop)
-    set(PLATFORM_DESKTOP ON)
+    set(BUILD_DESKTOP ON)
 endif()
 
 if(PLATFORM STREQUAL Web)
-    set(PLATFORM_WEB ON)
+    set(BUILD_WEB ON)
 endif()
 
 if(WIN32)
@@ -76,7 +75,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
 #═══════════════════════════════════════════════════════════════
 
 # Local Raylib Desktop
-if(USE_RAYLIB_LOCAL AND PLATFORM_DESKTOP)
+if(USE_RAYLIB_LOCAL AND BUILD_DESKTOP)
     if(EXISTS "${LOCAL_RAYLIB}")
         message(STATUS "Using local Raylib: ${LOCAL_RAYLIB}")
     else()
@@ -96,19 +95,19 @@ if(USE_RAYLIB_LOCAL AND PLATFORM_DESKTOP)
 endif()
 
 # Local Raylib Web
-if(USE_RAYLIB_LOCAL AND PLATFORM_WEB)
-    find_library(PATH_RAYLIB_WEB raylib PATHS "${LOCAL_RAYLIB_WEB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
+if(USE_RAYLIB_LOCAL AND BUILD_WEB)
+    find_library(PATH_RAYLIB_WEB raylib_web PATHS "${LOCAL_RAYLIB_WEB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
     message(STATUS "Using Raylib: ${PATH_RAYLIB_WEB}")
 
-    add_library(raylib STATIC IMPORTED)
-    set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB_WEB}")
-    target_link_libraries(${PROJECT_NAME} raylib)
+    add_library(raylib_web STATIC IMPORTED)
+    set_target_properties(raylib_web PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB_WEB}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
+
     target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}" PRIVATE "${LOCAL_EM_INCLUDE}")
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
     target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB)
     target_compile_options(${PROJECT_NAME} PRIVATE 
-        -Os 
+        -Os
         -Wall
         -Wpedantic
         -Wno-missing-braces
@@ -116,8 +115,10 @@ if(USE_RAYLIB_LOCAL AND PLATFORM_WEB)
     )
     target_link_options(${PROJECT_NAME} PRIVATE 
         -sFULL_ES3 # requires Raylib to be compiled for Web with OpenGL ES3
+        # -sUSE_GLFW=3 
         -sASYNCIFY
         -sWASM=1 
+        -sEXPORT_ES6=1
         -sTOTAL_MEMORY=67108864 
         -sFORCE_FILESYSTEM=1 
         -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
@@ -125,6 +126,7 @@ if(USE_RAYLIB_LOCAL AND PLATFORM_WEB)
         --shell-file "${LOCAL_RAYLIB}/shell.html" 
         --emrun
     )
+    target_link_libraries(${PROJECT_NAME} raylib_web)
 endif()
 
 #                         METADATA
@@ -142,12 +144,12 @@ endif()
 #                         INSTALL
 #═══════════════════════════════════════════════════════════════
 # Set build folder
-if(PLATFORM_DESKTOP)
+if(BUILD_DESKTOP)
     set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}")
 endif()
 
-if(PLATFORM_WEB)
-    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL_WEB}")
+if(BUILD_WEB)
+    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_PUBLISH}")
 endif()
 # Install files
 install(TARGETS ${PROJECT_NAME} DESTINATION "${PATH_BUILD}")
