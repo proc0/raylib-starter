@@ -21,11 +21,31 @@ set(FILE_CONFIG "config" CACHE STRING "Optional config file name")
 option(USE_RAYLIB_FETCH "Fetch and build from source" OFF)
 option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
 option(USE_RAYLIB_LOCAL "Find and use a local build" ON)
-# Local Raylib paths 
-set(LOCAL_RAYLIB "C:/raylib/raylib/src")
-set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
-# Local Raylib Web - Emscripten build include path
-set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include")
+
+message(STATUS "HOST SYSTEM: ${CMAKE_HOST_SYSTEM_NAME}")
+# Set paths based on OS
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    set(OS Windows)
+    # Local Raylib paths 
+    set(LOCAL_RAYLIB "C:/raylib/raylib/src")
+    set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
+    # Local Raylib Web - Emscripten build include path
+    set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include")
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    set(OS MacOS)
+    # Local Raylib paths 
+    set(LOCAL_RAYLIB "/mnt/c/raylib/raylib/src")
+    set(LOCAL_RAYLIB_WEB "/mnt/c/raylib/raylib/src/web")
+    # Local Raylib Web - Emscripten build include path
+    set(LOCAL_EM_INCLUDE "/mnt/c/emsdk/upstream/emscripten/cache/sysroot/include")
+else()
+    set(OS Linux)
+    # Local Raylib paths 
+    set(LOCAL_RAYLIB "/mnt/c/raylib/raylib/src")
+    set(LOCAL_RAYLIB_WEB "/mnt/c/raylib/raylib/src/web")
+    # Local Raylib Web - Emscripten build include path
+    set(LOCAL_EM_INCLUDE "/mnt/c/emsdk/upstream/emscripten/cache/sysroot/include")
+endif()
 
 #                        REFLECTION
 #═══════════════════════════════════════════════════════════════
@@ -49,14 +69,6 @@ endif()
 
 if(PLATFORM STREQUAL Web)
     set(BUILD_WEB ON)
-endif()
-
-if(WIN32)
-    set(OS Windows)
-elseif(MACOS)
-    set(OS MacOS)
-else()
-    set(OS Linux)
 endif()
 
 message(STATUS "\n-- ${OS} ${PLATFORM} ${BUILD_TYPE} Build \n--")
@@ -97,7 +109,7 @@ if(USE_RAYLIB_LOCAL)
     if(BUILD_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
         message(FATAL_ERROR "SETTINGS ERROR: Local Raylib Web path: ${LOCAL_RAYLIB_WEB} does not exist!")
     endif()
-    
+
     # Emscripten include folder path
     if(BUILD_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
         message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path: ${LOCAL_EM_INCLUDE} does not exist!")
@@ -110,6 +122,8 @@ if(USE_RAYLIB_LOCAL AND BUILD_DESKTOP)
 
     add_library(raylib STATIC IMPORTED)
     set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB}")
+
+    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}")
 
     if(OS STREQUAL Windows)
         target_link_libraries(${PROJECT_NAME} raylib winmm)

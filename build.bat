@@ -6,6 +6,7 @@ set "DIR_BUILD_WEB=build-web"
 
 set "PLATFORM=Desktop"
 set "BUILD_TYPE=Debug"
+set "BUILD_PATH=build"
 set "GENERATOR=MinGW Makefiles"
 
 where cmake >nul 2>nul

@@ -5,6 +5,7 @@ DIR_BUILD_WEB=build-web
 
 PLATFORM=Desktop
 BUILD_TYPE=Debug
+BUILD_PATH=build
 GENERATOR="Unix Makefiles"
 
 command -v cmake >/dev/null 2>&1 || { echo >&2 "CMake is not installed or not in the PATH. Please install CMake and add it to your PATH."; exit 1; }
