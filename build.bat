@@ -1,25 +1,23 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set "DIR_BUILD=build"
-set "DIR_BUILD_WEB=build-web"
-
-set "PLATFORM=Desktop"
-set "BUILD_TYPE=Debug"
-set "BUILD_PATH=build"
-set "GENERATOR=MinGW Makefiles"
-
 where cmake >nul 2>nul
 if %errorlevel% neq 0 (
     echo CMake is not installed or not in the PATH. Please install CMake and add it to your PATH.
     exit /b 1
 )
 
+set "PLATFORM=Desktop"
+set "BUILD_TYPE=Debug"
+set "BUILD_PATH=build"
+set "GENERATOR=MinGW Makefiles"
+
 @REM capture and forward arguments to cmake
 set "args="
 for %%a in (%*) do (
     if "%%a"=="--web" (
         set "PLATFORM=Web"
+        set "BUILD_PATH=%BUILD_PATH%-web"
     ) else (
         if not defined args (
             set "args=%%a"
@@ -29,38 +27,25 @@ for %%a in (%*) do (
     )
 )
 
-if "%PLATFORM%"=="Web" (
-    @REM Building for Web...
+@REM Configure
+if not exist %BUILD_PATH% (
+    mkdir %BUILD_PATH%
 
-    if not exist %DIR_BUILD_WEB% (
-        mkdir %DIR_BUILD_WEB%
-        emcmake cmake -S . -B %DIR_BUILD_WEB%
-    )
-    
-    cmake %DIR_BUILD_WEB% -DBUILD_TYPE=%BUILD_TYPE% -DPLATFORM=%PLATFORM%
-    
-    if defined args (
-        cmake --build %DIR_BUILD_WEB% "%args%"
+    if "%PLATFORM%"=="Web" (
+        emcmake cmake -S . -B %BUILD_PATH% -DBUILD_TYPE=%BUILD_TYPE%
     ) else (
-        cmake --build %DIR_BUILD_WEB%
+        cmake -S . -B %BUILD_PATH% -G "%GENERATOR%" -DBUILD_TYPE=%BUILD_TYPE%
     )
-
-    @REM cmake --install %DIR_BUILD_WEB%
-) else (
-    @REM Building for Desktop...
-
-    if not exist %DIR_BUILD% (
-        mkdir %DIR_BUILD%
-        cmake -S . -B %DIR_BUILD% -G "%GENERATOR%"
-    )
-    
-    cmake %DIR_BUILD% -DBUILD_TYPE=%BUILD_TYPE% -DPLATFORM=%PLATFORM%
-
-    if defined args (
-        cmake --build %DIR_BUILD% "%args%"
-    ) else (
-        cmake --build %DIR_BUILD%
-    )
-    
-    @REM cmake --install %DIR_BUILD%
 )
+
+@REM Generate
+cmake %BUILD_PATH% -DBUILD_TYPE=%BUILD_TYPE% -DPLATFORM=%PLATFORM%
+
+@REM Build
+if defined args (
+    cmake --build %BUILD_PATH% "%args%"
+) else (
+    cmake --build %BUILD_PATH%
+)
+
+@REM cmake --install %BUILD_PATH%

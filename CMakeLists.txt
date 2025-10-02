@@ -14,36 +14,29 @@ set(DIR_SOURCE "src" CACHE STRING "Project source files folder name")
 set(DIR_INCLUDE "include" CACHE STRING "Project header files folder name")
 set(DIR_ASSETS "assets" CACHE STRING "Project assets folder name")
 set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
-set(DIR_PUBLISH "web" CACHE STRING "Project web install folder name")
 set(FILE_CONFIG "config" CACHE STRING "Optional config file name")
 
 # Raylib settings - ONLY ONE SHOULD BE ON
 option(USE_RAYLIB_FETCH "Fetch and build from source" OFF)
 option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
 option(USE_RAYLIB_LOCAL "Find and use a local build" ON)
-
-message(STATUS "HOST SYSTEM: ${CMAKE_HOST_SYSTEM_NAME}")
+# LOCAL BUILD PATHS
+message(STATUS "Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 # Set paths based on OS
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     set(OS Windows)
-    # Local Raylib paths 
     set(LOCAL_RAYLIB "C:/raylib/raylib/src")
     set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
-    # Local Raylib Web - Emscripten build include path
     set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include")
 elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     set(OS MacOS)
-    # Local Raylib paths 
     set(LOCAL_RAYLIB "/mnt/c/raylib/raylib/src")
     set(LOCAL_RAYLIB_WEB "/mnt/c/raylib/raylib/src/web")
-    # Local Raylib Web - Emscripten build include path
     set(LOCAL_EM_INCLUDE "/mnt/c/emsdk/upstream/emscripten/cache/sysroot/include")
 else()
     set(OS Linux)
-    # Local Raylib paths 
     set(LOCAL_RAYLIB "/mnt/c/raylib/raylib/src")
     set(LOCAL_RAYLIB_WEB "/mnt/c/raylib/raylib/src/web")
-    # Local Raylib Web - Emscripten build include path
     set(LOCAL_EM_INCLUDE "/mnt/c/emsdk/upstream/emscripten/cache/sysroot/include")
 endif()
 
@@ -71,7 +64,8 @@ if(PLATFORM STREQUAL Web)
     set(BUILD_WEB ON)
 endif()
 
-message(STATUS "\n-- ${OS} ${PLATFORM} ${BUILD_TYPE} Build \n--")
+# CMAKE_SYSTEM_NAME will detect Emscripten
+message(STATUS "\n-- ${CMAKE_SYSTEM_NAME} ${PLATFORM} ${BUILD_TYPE} Build \n--")
 
 #                         DEFINITION
 #═══════════════════════════════════════════════════════════════
@@ -162,7 +156,6 @@ if(USE_RAYLIB_LOCAL AND BUILD_WEB)
     target_link_libraries(${PROJECT_NAME} raylib)
 endif()
 
-
 # TODO: compile Raylib with Emscripten
 # target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB)
 # target_compile_options(${PROJECT_NAME} PRIVATE 
@@ -188,13 +181,12 @@ endif()
 
 #                         INSTALL
 #═══════════════════════════════════════════════════════════════
-# Set build folder
-if(BUILD_DESKTOP)
+# Set install folder
+if(BUILD_WEB)
+    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}-web")
+else()
     set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}")
 endif()
 
-if(BUILD_WEB)
-    set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_PUBLISH}")
-endif()
 # Install files
 install(TARGETS ${PROJECT_NAME} DESTINATION "${PATH_BUILD}")
