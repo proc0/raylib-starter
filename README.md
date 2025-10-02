@@ -49,23 +49,31 @@ cd my-project
   - [CMake](https://cmake.org)
   - [Emscripten](https://emscripten.org)
 - Linux (WIP)
-  - probably ready to go but have not tested yet
+  - g++
+  - make
+  - [CMake](https://cmake.org)
 - Mac (WIP)
+  - g++
+  - make
+  - [CMake](https://cmake.org)
 
-## Lib Requirements
+## Resources
 
 - [Raylib](https://github.com/raysan5/raylib)
 - [Raylib built for web](<https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5)>)
 
 ## Folder structure
 
+<pre>
 my-project
-├───.vscode
-├───bin # executables
-├───build # build files
-├───include # header files
-├───assets # file assets
-└───src # source files
+├───assets    # project assets
+├───build     # build folder
+├───build-web # web build folder
+├───dist      # install folder
+├───dist-web  # web install folder
+├───include   # header files
+└───src       # source files
+</pre>
 
 ## Build Script Usage
 
