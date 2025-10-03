@@ -102,9 +102,11 @@ my-project
 
 ## Build Script Usage
 
-build{.sh|.bat} [--web] [--release] [--run] [<options>]
+<pre>
+build{.sh|.bat} [--web] [--release] [--run] [OPTIONS]
 
 --web: build for web using Emscripten
 --release: build for release
 --run: run executable after build
-<options>: additional options given to CMake build command
+OPTIONS: additional options given to CMake build command
+</pre>
