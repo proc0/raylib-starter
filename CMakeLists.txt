@@ -13,12 +13,12 @@ set(DIR_SOURCE "src" CACHE STRING "Project source files folder name")
 set(DIR_INCLUDE "include" CACHE STRING "Project header files folder name")
 set(DIR_ASSETS "assets" CACHE STRING "Project assets folder name")
 set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
-set(FILE_CONFIG "config" CACHE STRING "Optional config file name")
+set(FILE_CONFIG "config" CACHE STRING "Optional config file name in include folder")
 
 # Raylib settings - ONLY ONE SHOULD BE ON
-option(USE_RAYLIB_FETCH "Fetch and build from source" OFF)
+option(USE_RAYLIB_FETCH "Fetch and build from source" ON)
 option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
-option(USE_RAYLIB_LOCAL "Find and use a local build" ON)
+option(USE_RAYLIB_LOCAL "Find and use a local build" OFF)
 # LOCAL BUILD PATHS
 message(STATUS "Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 # Set paths based on OS
@@ -39,34 +39,53 @@ else()
     set(LOCAL_EM_INCLUDE "/usr/local/lib/emsdk/upstream/emscripten/cache/sysroot/include")
 endif()
 
-#                        REFLECTION
+#                      BUILD VARIABLES
 #═══════════════════════════════════════════════════════════════
 # Build type flags
-set(BUILD_DEBUG OFF)
-set(BUILD_RELEASE OFF)
-set(BUILD_DESKTOP OFF)
-set(BUILD_WEB OFF)
+# set(BUILD_DEBUG OFF)
+# set(BUILD_RELEASE OFF)
+set(IS_DESKTOP OFF)
+set(IS_WEB OFF)
 # Config file flags
 set(IS_DEBUG 0)
 
-if(BUILD_TYPE STREQUAL Debug)
-    set(BUILD_DEBUG ON)
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    # set(BUILD_DEBUG ON)
     set(IS_DEBUG 1)
 endif()
 
 if(PLATFORM STREQUAL Desktop)
-    set(BUILD_DESKTOP ON)
+    set(IS_DESKTOP ON)
 endif()
 
 if(PLATFORM STREQUAL Web)
-    set(BUILD_WEB ON)
+    set(IS_WEB ON)
 endif()
 
 # CMAKE_SYSTEM_NAME will detect Emscripten
-message(STATUS "\n-- ${CMAKE_SYSTEM_NAME} ${PLATFORM} ${BUILD_TYPE} Build \n--")
+message(STATUS "\n-- ${CMAKE_SYSTEM_NAME} ${PLATFORM} ${CMAKE_BUILD_TYPE} Build \n--")
+
+# libraries array
+set(LIBRARIES ${PROJECT_NAME})
+
+#                         FUNCTIONS
+#═══════════════════════════════════════════════════════════════
+include(FetchContent)
+function(Fetch lib url tag)
+    FetchContent_Declare(${lib}
+        GIT_REPOSITORY ${url}
+        GIT_TAG        ${tag}
+        GIT_SHALLOW    TRUE
+        GIT_PROGRESS   TRUE
+    )
+    FetchContent_MakeAvailable(${lib})
+
+    list(APPEND LIBRARIES ${lib})
+endfunction()
 
 #                         DEFINITION
 #═══════════════════════════════════════════════════════════════
+
 add_executable(${PROJECT_NAME})
 # source files
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${DIR_SOURCE}/*.cpp")
@@ -83,8 +102,21 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -Wunused-result
 )
 
-#                           RAYLIB
+#                      DEPENDENCY SETUP
 #═══════════════════════════════════════════════════════════════
+
+# Fetch Raylib - download and build Raylib
+#---------------------------------------------------------------
+# TODO: fetch Emscripten and compile Raylib with Emscripten with no deps??
+if(USE_RAYLIB_FETCH AND IS_WEB)
+    message(FATAL_ERROR "WORK IN PROGRESS ERROR: Use a local Web build of Raylib and USE_RAYLIB_LOCAL set to ON, to build for Web")
+endif()
+
+if(USE_RAYLIB_FETCH AND IS_DESKTOP)
+    Fetch(raylib "https://github.com/raysan5/raylib.git" head)
+
+    list(APPEND LIBRARIES raylib)
+endif()
 
 # Local Raylib - Use a local build of Raylib
 #---------------------------------------------------------------
@@ -98,18 +130,18 @@ if(USE_RAYLIB_LOCAL)
     endif()
 
     # Raylib Web build path
-    if(BUILD_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
+    if(IS_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
         message(FATAL_ERROR "SETTINGS ERROR: Local Raylib Web path: ${LOCAL_RAYLIB_WEB} does not exist!")
     endif()
 
     # Emscripten include folder path
-    if(BUILD_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
+    if(IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
         message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path: ${LOCAL_EM_INCLUDE} does not exist!")
     endif()
 endif()
 
 # Local Raylib Desktop Setup
-if(USE_RAYLIB_LOCAL AND BUILD_DESKTOP)
+if(USE_RAYLIB_LOCAL AND IS_DESKTOP)
     find_library(PATH_RAYLIB raylib PATHS "${LOCAL_RAYLIB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
 
     add_library(raylib STATIC IMPORTED)
@@ -117,15 +149,15 @@ if(USE_RAYLIB_LOCAL AND BUILD_DESKTOP)
 
     target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}")
 
+    list(APPEND LIBRARIES raylib)
+
     if(OS STREQUAL Windows)
-        target_link_libraries(${PROJECT_NAME} raylib winmm)
-    else()
-        target_link_libraries(${PROJECT_NAME} raylib)
+        list(APPEND LIBRARIES winmm)
     endif()
 endif()
 
 # Local Raylib Web Setup
-if(USE_RAYLIB_LOCAL AND BUILD_WEB)
+if(USE_RAYLIB_LOCAL AND IS_WEB)
     message(STATUS "Using local Raylib Web: ${LOCAL_RAYLIB_WEB}")
 
     find_library(PATH_RAYLIB_WEB raylib PATHS "${LOCAL_RAYLIB_WEB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
@@ -151,21 +183,16 @@ if(USE_RAYLIB_LOCAL AND BUILD_WEB)
         --shell-file "${LOCAL_RAYLIB}/shell.html" 
         # --emrun 
     )
-    target_link_libraries(${PROJECT_NAME} raylib)
+
+    list(APPEND LIBRARIES raylib)
 endif()
 
-# TODO: compile Raylib with Emscripten
-# target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB)
-# target_compile_options(${PROJECT_NAME} PRIVATE 
-#     -Os
-#     -Wall
-#     -Wpedantic
-#     -Wno-missing-braces
-#     -Wunused-result
-#     -DRAYLIB_ASYNC_ENABLE
-# )
+#                      LINK LIBRARIES
+#═══════════════════════════════════════════════════════════════
 
-#                         METADATA
+target_link_libraries(${LIBRARIES})
+
+#                      BUILD REFLECTION
 #═══════════════════════════════════════════════════════════════
 # Get current datetime
 execute_process(COMMAND date "+%Y-%m-%d %H:%M:%S" OUTPUT_VARIABLE OUTPUT_DATE)
@@ -180,7 +207,7 @@ endif()
 #                         INSTALL
 #═══════════════════════════════════════════════════════════════
 # Set install folder
-if(BUILD_WEB)
+if(IS_WEB)
     set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}-web")
 else()
     set(PATH_BUILD "${CMAKE_CURRENT_LIST_DIR}/${DIR_INSTALL}")

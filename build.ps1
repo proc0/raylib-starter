@@ -29,14 +29,14 @@ if (-not (Test-Path $buildPath)) {
     New-Item -ItemType Directory -Path $buildPath | Out-Null
 
     if ($platform -eq "Web") {
-        emcmake cmake -S . -B $buildPath -DBUILD_TYPE="$buildType"
+        emcmake cmake -S . -B $buildPath -DCMAKE_BUILD_TYPE="$buildType"
     } else {
-        cmake -S . -B $buildPath -G $generator -DBUILD_TYPE="$buildType"
+        cmake -S . -B $buildPath -G $generator -DCMAKE_BUILD_TYPE="$buildType"
     }
 }
 
 # Generate
-cmake $buildPath -DPLATFORM="$platform"
+cmake $buildPath -DPLATFORM="$platform" -DCMAKE_BUILD_TYPE="$buildType"
 
 # Build
 if ($otherArgs.Count -gt 0) {

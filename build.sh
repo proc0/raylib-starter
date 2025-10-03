@@ -21,14 +21,14 @@ done
 # Configure
 if [ ! -d "$BUILD_PATH" ]; then
   if [ "$PLATFORM" = "Web" ]; then
-    emcmake cmake -S . -B $BUILD_PATH -DBUILD_TYPE=$BUILD_TYPE
+    emcmake cmake -S . -B $BUILD_PATH -DCMAKE_BUILD_TYPE=$BUILD_TYPE
   else
-    cmake -S . -B $BUILD_PATH -G "$GENERATOR" -DBUILD_TYPE=$BUILD_TYPE
+    cmake -S . -B $BUILD_PATH -G "$GENERATOR" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
   fi
 fi
 
 # Generate
-cmake $BUILD_PATH -DPLATFORM=$PLATFORM
+cmake $BUILD_PATH -DPLATFORM=$PLATFORM -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
 # Build
 cmake --build $BUILD_PATH "$@"
