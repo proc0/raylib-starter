@@ -3,8 +3,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 #                         PROJECT
 #═══════════════════════════════════════════════════════════════
-# TODO: add automatic versioning with git push to main
-set(PROJECT_VERSION "0.0.1")
+set(PROJECT_VERSION "0.1.0")
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_NAME} LANGUAGES CXX)
 
@@ -42,13 +41,12 @@ endif()
 
 #                        REFLECTION
 #═══════════════════════════════════════════════════════════════
-
 # Build type flags
 set(BUILD_DEBUG OFF)
 set(BUILD_RELEASE OFF)
 set(BUILD_DESKTOP OFF)
 set(BUILD_WEB OFF)
-# Config file specific flags
+# Config file flags
 set(IS_DEBUG 0)
 
 if(BUILD_TYPE STREQUAL Debug)

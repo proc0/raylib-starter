@@ -13,6 +13,8 @@ do
     PLATFORM=Web
     BUILD_PATH=$BUILD_PATH-web
     shift
+  elif [ "$arg" == "--release" ]; then
+    PLATFORM=Release
   fi
 done
 
@@ -26,7 +28,7 @@ if [ ! -d "$BUILD_PATH" ]; then
 fi
 
 # Generate
-cmake $BUILD_PATH -DBUILD_TYPE=$BUILD_TYPE -DPLATFORM=$PLATFORM
+cmake $BUILD_PATH -DPLATFORM=$PLATFORM
 
 # Build
 cmake --build $BUILD_PATH "$@"
