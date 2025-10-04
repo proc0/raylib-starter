@@ -5,10 +5,9 @@ Raylib C++ Starter Project
 ## Quick Start (Desktop Debug)
 
 1. **clone** this repo
-2. **rename** directory to project name
-3. **navigate** into root folder
-   a. make build script executable (\*nix only)
-4. **run** build script
+2. **rename** folder to project name
+3. **navigate** into project folder
+4. **run** ([\*nix] make build script executable) build script
 
 #### \*nix
 
@@ -56,7 +55,7 @@ Now just run the executable from the build folder.
 ## Features
 
 - Multiple ways to use Raylib
-  - Use a local build
+  - Use a local build (path in CMakeLists)
   - Fetch and build from source
   - Fetch and build a custom build (WIP)
 - Flexible build configuration

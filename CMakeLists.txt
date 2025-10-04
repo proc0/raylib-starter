@@ -15,9 +15,9 @@ set(DIR_ASSETS "assets" CACHE STRING "Project assets folder name")
 set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
 set(FILE_CONFIG "config" CACHE STRING "Optional config file name in include folder")
 
-# Raylib settings - ONLY ONE SHOULD BE ON
-option(USE_RAYLIB_FETCH "Fetch and build from source" OFF)
-option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
+# Raylib settings - Use local if exists, if not fetch it
+option(USE_RAYLIB_FETCH "Fetch and build from source" ON)
+# TODO: option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
 option(USE_RAYLIB_LOCAL "Find and use a local build" ON)
 # LOCAL BUILD PATHS
 message(STATUS "Host System: ${CMAKE_HOST_SYSTEM_NAME}")
@@ -105,9 +105,34 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 #                      DEPENDENCY SETUP
 #═══════════════════════════════════════════════════════════════
 
+# Local Raylib - Use local build of Raylib or fallback to fetch
+#---------------------------------------------------------------
+# Path validations
+if(USE_RAYLIB_LOCAL)
+    # Raylib path - used for both desktop and web
+    if(EXISTS "${LOCAL_RAYLIB}")
+        message(STATUS "Using local Raylib: ${LOCAL_RAYLIB}")
+    elseif(USE_RAYLIB_FETCH)
+        # fallback to fetching Raylib
+        set(USE_RAYLIB_LOCAL OFF)
+    else()
+        message(FATAL_ERROR "SETTINGS ERROR: Local Raylib path: ${LOCAL_RAYLIB} does not exist!")
+    endif()
+
+    # Raylib Web build path
+    if(USE_RAYLIB_LOCAL AND IS_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
+        message(FATAL_ERROR "SETTINGS ERROR: Local Raylib Web path: ${LOCAL_RAYLIB_WEB} does not exist!")
+    endif()
+
+    # Emscripten include folder path
+    if(USE_RAYLIB_LOCAL AND IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
+        message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path: ${LOCAL_EM_INCLUDE} does not exist!")
+    endif()
+endif()
+
 # Fetch Raylib - download and build Raylib
 #---------------------------------------------------------------
-# TODO: fetch Emscripten and compile Raylib with Emscripten with no deps??
+# TODO: fetch Emscripten and compile Raylib with Emscripten with no local EM??
 if(USE_RAYLIB_FETCH)
     if(IS_WEB)
         message(FATAL_ERROR "WORK IN PROGRESS ERROR: Use a local Web build of Raylib and USE_RAYLIB_LOCAL set to ON, to build for Web")
@@ -117,28 +142,6 @@ if(USE_RAYLIB_FETCH)
         Fetch(raylib "https://github.com/raysan5/raylib.git" head)
 
         list(APPEND LIBRARIES raylib)
-    endif()
-endif()
-
-# Local Raylib - Use a local build of Raylib
-#---------------------------------------------------------------
-# Path validations
-if(USE_RAYLIB_LOCAL)
-    # Raylib path - used for both desktop and web
-    if(EXISTS "${LOCAL_RAYLIB}")
-        message(STATUS "Using local Raylib: ${LOCAL_RAYLIB}")
-    else()
-        message(FATAL_ERROR "SETTINGS ERROR: Local Raylib path: ${LOCAL_RAYLIB} does not exist!")
-    endif()
-
-    # Raylib Web build path
-    if(IS_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
-        message(FATAL_ERROR "SETTINGS ERROR: Local Raylib Web path: ${LOCAL_RAYLIB_WEB} does not exist!")
-    endif()
-
-    # Emscripten include folder path
-    if(IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
-        message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path: ${LOCAL_EM_INCLUDE} does not exist!")
     endif()
 endif()
 
