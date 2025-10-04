@@ -1,31 +1,21 @@
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
-
 #include "game.hpp"
 
-Game NewGame;
-
-void main_loop(){
-    NewGame.Loop();
-}
-
 int main(void){
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Example");
+    Game client;
+
+#ifdef __EMSCRIPTEN__
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
+#else
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
+#endif
+
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, PROJECT_NAME);
     InitAudioDevice();
-
-    NewGame.Load();
-
-    #ifdef __EMSCRIPTEN__
-        emscripten_set_main_loop(main_loop, 0, 1);
-    #else
-        SetTargetFPS(120);
-        while (!WindowShouldClose()) {
-            NewGame.Loop();
-        }
-    #endif
     
-    NewGame.Unload();
+    client.Load();
+    client.Run();
+    client.Unload();
+
     CloseAudioDevice();
     CloseWindow();
 

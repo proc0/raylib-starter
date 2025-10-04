@@ -16,9 +16,9 @@ set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
 set(FILE_CONFIG "config" CACHE STRING "Optional config file name in include folder")
 
 # Raylib settings - ONLY ONE SHOULD BE ON
-option(USE_RAYLIB_FETCH "Fetch and build from source" ON)
+option(USE_RAYLIB_FETCH "Fetch and build from source" OFF)
 option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
-option(USE_RAYLIB_LOCAL "Find and use a local build" OFF)
+option(USE_RAYLIB_LOCAL "Find and use a local build" ON)
 # LOCAL BUILD PATHS
 message(STATUS "Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 # Set paths based on OS
@@ -42,28 +42,28 @@ endif()
 #                      BUILD VARIABLES
 #═══════════════════════════════════════════════════════════════
 # Build type flags
-# set(BUILD_DEBUG OFF)
-# set(BUILD_RELEASE OFF)
 set(IS_DESKTOP OFF)
 set(IS_WEB OFF)
+set(IS_DEBUG OFF)
+set(IS_RELEASE OFF)
 # Config file flags
-set(IS_DEBUG 0)
+set(DEBUG 0)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    # set(BUILD_DEBUG ON)
-    set(IS_DEBUG 1)
+    set(IS_DEBUG ON)
+    set(DEBUG 1)
+elseif(CMAKE_BUILD_TYPE STREQUAL Release)
+    set(IS_RELEASE ON)
 endif()
 
 if(PLATFORM STREQUAL Desktop)
     set(IS_DESKTOP ON)
-endif()
-
-if(PLATFORM STREQUAL Web)
+elseif(PLATFORM STREQUAL Web)
     set(IS_WEB ON)
 endif()
 
 # CMAKE_SYSTEM_NAME will detect Emscripten
-message(STATUS "\n-- ${CMAKE_SYSTEM_NAME} ${PLATFORM} ${CMAKE_BUILD_TYPE} Build \n--")
+message(STATUS "\n-- ${CMAKE_SYSTEM_NAME} ${CMAKE_CXX_COMPILER_ID} ${PLATFORM} ${CMAKE_BUILD_TYPE} Build \n--")
 
 # libraries array
 set(LIBRARIES ${PROJECT_NAME})
@@ -108,14 +108,16 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 # Fetch Raylib - download and build Raylib
 #---------------------------------------------------------------
 # TODO: fetch Emscripten and compile Raylib with Emscripten with no deps??
-if(USE_RAYLIB_FETCH AND IS_WEB)
-    message(FATAL_ERROR "WORK IN PROGRESS ERROR: Use a local Web build of Raylib and USE_RAYLIB_LOCAL set to ON, to build for Web")
-endif()
+if(USE_RAYLIB_FETCH)
+    if(IS_WEB)
+        message(FATAL_ERROR "WORK IN PROGRESS ERROR: Use a local Web build of Raylib and USE_RAYLIB_LOCAL set to ON, to build for Web")
+    endif()
 
-if(USE_RAYLIB_FETCH AND IS_DESKTOP)
-    Fetch(raylib "https://github.com/raysan5/raylib.git" head)
+    if(IS_DESKTOP)
+        Fetch(raylib "https://github.com/raysan5/raylib.git" head)
 
-    list(APPEND LIBRARIES raylib)
+        list(APPEND LIBRARIES raylib)
+    endif()
 endif()
 
 # Local Raylib - Use a local build of Raylib

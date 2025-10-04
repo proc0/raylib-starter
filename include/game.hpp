@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 #include <raylib.h>
 #include <string>
 
@@ -18,8 +21,9 @@ class Game {
 
     public:
         void Load();
-        void Loop();
+        static void Loop(void *self);
         void Render() const;
+        void Run();
         void Unload();
         void Update();
 };
