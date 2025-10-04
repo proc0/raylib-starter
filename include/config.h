@@ -3,5 +3,5 @@
 #define PROJECT_NAME "raystart"
 #define VERSION "0.1.0"
 #define DEBUG 1
-#define DATE_BUILD "2025-10-03 21:21:34"
+#define DATE_BUILD "2025-10-04 11:41:09"
 #define DIR_ASSETS "assets"

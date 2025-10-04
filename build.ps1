@@ -1,24 +1,33 @@
 # Check if CMake is installed
-$cmakeCheck = where.exe cmake 2>$null
+where.exe cmake 2>$null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "CMake is not installed or not in the PATH. Please install CMake and add it to your PATH."
     exit 1
 }
 
 # Initialize variables
+$appName = $pwd.Path | Split-Path -Leaf
 $platform = "Desktop"
 $buildType = "Debug"
 $buildPath = "build"
+$shouldRun = $false
 $generator = "MinGW Makefiles"
 $otherArgs = @()
 
 # Process arguments
 foreach ($arg in $args) {
     if ($arg -eq "--web") {
+        where.exe em++ 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Emscripten is not installed or not in the PATH. Please install Emscripten to build for Web."
+            exit 1
+        }
         $platform = "Web"
         $buildPath = "$buildPath-web"
     } elseif ($arg -eq "--release") {
         $buildType = "Release"
+    } elseif ($arg -eq "--run") {
+        $shouldRun = $true
     } else {
         $otherArgs += $arg
     }
@@ -29,9 +38,9 @@ if (-not (Test-Path $buildPath)) {
     New-Item -ItemType Directory -Path $buildPath | Out-Null
 
     if ($platform -eq "Web") {
-        emcmake cmake -S . -B $buildPath -DCMAKE_BUILD_TYPE="$buildType"
+        emcmake cmake -S . -B $buildPath -DCMAKE_BUILD_TYPE="$buildType" -DPLATFORM="$platform"
     } else {
-        cmake -S . -B $buildPath -G $generator -DCMAKE_BUILD_TYPE="$buildType"
+        cmake -S . -B $buildPath -G $generator -DCMAKE_BUILD_TYPE="$buildType" -DPLATFORM="$platform"
     }
 }
 
@@ -44,3 +53,14 @@ if ($otherArgs.Count -gt 0) {
 } else {
     cmake --build $buildPath
 }
+
+#Install
+
+#Run
+if ($shouldRun) {
+    if($platform -eq "Web") {
+        emrun "$buildPath\$appName.html"
+    } else {
+        Invoke-Expression ".\$buildPath\$appName.exe"
+    }
+} 

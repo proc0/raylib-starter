@@ -170,21 +170,38 @@ if(USE_RAYLIB_LOCAL AND IS_WEB)
 
     target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}" PRIVATE "${LOCAL_EM_INCLUDE}")
 
-    # FULL_ES3 requires Raylib to be compiled for Web with OpenGL ES3 (see README requirements)
-    target_link_options(${PROJECT_NAME} PRIVATE 
-        -sFULL_ES3 
-        -sUSE_GLFW=3 
-        -sASYNCIFY
-        -sWASM=1
-        -sEXPORT_ES6=1
-        -sGL_ENABLE_GET_PROC_ADDRESS=1
-        -sTOTAL_MEMORY=67108864 
-        -sFORCE_FILESYSTEM=1
-        -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
-        --preload-file "../${DIR_ASSETS}" 
-        --shell-file "${LOCAL_RAYLIB}/shell.html" 
-        # --emrun 
-    )
+    if(IS_DEBUG)
+        # FULL_ES3 requires Raylib to be compiled for Web with OpenGL ES3 (see README requirements)
+        target_link_options(${PROJECT_NAME} PRIVATE 
+            -sFULL_ES3 
+            -sUSE_GLFW=3 
+            -sASYNCIFY
+            -sWASM=1
+            -sEXPORT_ES6=1
+            -sGL_ENABLE_GET_PROC_ADDRESS=1
+            -sTOTAL_MEMORY=67108864 
+            -sFORCE_FILESYSTEM=1
+            -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
+            --preload-file "../${DIR_ASSETS}" 
+            --shell-file "${LOCAL_RAYLIB}/shell.html"
+            --emrun
+        )
+    else()
+        # FULL_ES3 requires Raylib to be compiled for Web with OpenGL ES3 (see README requirements)
+        target_link_options(${PROJECT_NAME} PRIVATE 
+            -sFULL_ES3 
+            -sUSE_GLFW=3 
+            -sASYNCIFY
+            -sWASM=1
+            -sEXPORT_ES6=1
+            -sGL_ENABLE_GET_PROC_ADDRESS=1
+            -sTOTAL_MEMORY=67108864 
+            -sFORCE_FILESYSTEM=1
+            -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
+            --preload-file "../${DIR_ASSETS}" 
+            --shell-file "${LOCAL_RAYLIB}/minshell.html" 
+        )
+    endif()
 
     list(APPEND LIBRARIES raylib)
 endif()
