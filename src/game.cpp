@@ -45,18 +45,23 @@ void Game::Update(){
         }
     }
     
-    ballPosition = GetMousePosition();
 }
 
 void Game::Render() const {
     BeginDrawing();
-    ClearBackground(BLACK);
-    DrawRectangleGradientH(0, 0, screenWidth, screenHeight, BLUE, GREEN);
-    DrawCircleV(ballPosition, 40, ballColor);
-    const char* countText = TextFormat("Count: %i", count);
-    DrawText(countText, 50, 50, 20, WHITE);
-    if (IsCursorHidden()) DrawText("CURSOR HIDDEN", SCREEN_WIDTH/2-100, 60, 20, BLACK);
-    else DrawText("CURSOR VISIBLE", SCREEN_WIDTH/2-100, 60, 20, WHITE);
+        ClearBackground(BLACK);
+
+        DrawRectangleGradientH(0, 0, screenWidth, screenHeight, BLUE, ORANGE);
+        
+        DrawCircleV(GetMousePosition(), 40, YELLOW);
+
+        const char* countText = TextFormat("Count: %i", count);
+        DrawText(countText, 50, 50, 20, WHITE);
+        if (IsCursorHidden()) {
+            DrawText("CURSOR HIDDEN", screenWidth/2-100, 60, 20, RED);
+        } else {
+            DrawText("CURSOR VISIBLE", screenWidth/2-100, 60, 20, GREEN);
+        }
     EndDrawing();
 }
 

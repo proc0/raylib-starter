@@ -8,17 +8,15 @@
 
 #include "config.h"
 
-#define URI_SOUND_SPLAT "splat1.wav"
 // initial screen dimensions
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
+// asset files
+#define URI_SOUND_SPLAT "splat1.wav"
 
 class Game {
     int count;
     Sound splat;
-    Color ballColor = RED;
-    Vector2 ballPosition = { -100.0f, -100.0f };
-    bool isCursorHidden = false;
     
     public:
         int screenWidth = SCREEN_WIDTH;
