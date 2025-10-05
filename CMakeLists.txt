@@ -15,7 +15,7 @@ set(DIR_ASSETS "assets" CACHE STRING "Project assets folder name")
 set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
 set(FILE_CONFIG "config" CACHE STRING "Optional config file name in include folder")
 
-# Raylib settings - use local lib if exists if both ON
+# Raylib settings - defaults to local lib if exists
 option(USE_RAYLIB_FETCH "Fetch and build from source" ON)
 # TODO: option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
 option(USE_RAYLIB_LOCAL "Use a local static build" ON)
@@ -23,20 +23,21 @@ option(USE_RAYLIB_LOCAL "Use a local static build" ON)
 #                      LOCAL LIB PATHS
 #---------------------------------------------------------------
 message(STATUS "Host System: ${CMAKE_HOST_SYSTEM_NAME}")
+# LOCAL_EM_INCLUDE - Emscripten Include path REQUIRED for WEB
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     set(OS Windows)
-    set(LOCAL_RAYLIB "")
-    set(LOCAL_RAYLIB_WEB "")
+    set(LOCAL_RAYLIB "C:/raylib/raylib/src")
+    set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
     set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include")
 elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     set(OS MacOS)
-    set(LOCAL_RAYLIB "/usr/local/lib/raylib")
-    set(LOCAL_RAYLIB_WEB "/usr/local/lib/raylib/web")
+    set(LOCAL_RAYLIB "/usr/local/lib/raylib/src")
+    set(LOCAL_RAYLIB_WEB "/usr/local/lib/raylib/src/web")
     set(LOCAL_EM_INCLUDE "/usr/local/lib/emsdk/upstream/emscripten/cache/sysroot/include")
 else()
     set(OS Linux)
-    set(LOCAL_RAYLIB "/usr/local/lib/raylib")
-    set(LOCAL_RAYLIB_WEB "/usr/local/lib/raylib/web")
+    set(LOCAL_RAYLIB "/usr/local/lib/raylib/src")
+    set(LOCAL_RAYLIB_WEB "/usr/local/lib/raylib/src/web")
     set(LOCAL_EM_INCLUDE "/usr/local/lib/emsdk/upstream/emscripten/cache/sysroot/include")
 endif()
 
@@ -81,17 +82,17 @@ if(USE_RAYLIB_LOCAL)
         # fallback to fetching Raylib
         set(USE_RAYLIB_LOCAL OFF)
     else()
-        message(FATAL_ERROR "SETTINGS ERROR: Raylib not found in: ${LOCAL_RAYLIB}, and USE_RAYLIB_FETCH is OFF!")
+        message(FATAL_ERROR "SETTINGS ERROR: Raylib not found!: ${LOCAL_RAYLIB}")
     endif()
 
     # Local Raylib Web path
     if(USE_RAYLIB_LOCAL AND IS_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
-        message(FATAL_ERROR "SETTINGS ERROR: Raylib for Web not found in: ${LOCAL_RAYLIB_WEB}!")
+        message(FATAL_ERROR "SETTINGS ERROR: Raylib for Web not found!: ${LOCAL_RAYLIB_WEB}")
     endif()
 
     # Emscripten include folder path
     if(IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
-        message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path: ${LOCAL_EM_INCLUDE} does not exist!")
+        message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path not found!: ${LOCAL_EM_INCLUDE}")
     endif()
 endif()
 
