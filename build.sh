@@ -43,7 +43,21 @@ cmake --build $BUILD_PATH "$@"
 
 # Run
 if [[ "$SHOULD_RUN" == "true" ]]; then
-    emrun $BUILD_PATH/$APP_NAME.html
-else
-    ./$BUILD_PATH/$APP_NAME
+  if [[ "$PLATFORM" == "Web" ]]; then
+    APP_PATH="$BUILD_PATH/$APP_NAME.html"
+    if [ ! -f "$APP_PATH" ]; then
+      echo >&2 "LAUNCH ERROR: $APP_PATH not found."
+      exit 1
+    fi
+
+    emrun "$APP_PATH"
+  else
+    APP_PATH="./$BUILD_PATH/$APP_NAME"
+    if [ ! -f "$APP_PATH" ]; then
+      echo >&2 "LAUNCH ERROR: $APP_PATH not found."
+      exit 1
+    fi
+
+    eval "$APP_PATH"
+  fi
 fi

@@ -55,22 +55,25 @@ if ($otherArgs.Count -gt 0) {
 }
 
 #Install
+# cmake --install $buildPath
 
 #Run
 if ($shouldRun) {
     if($platform -eq "Web") {
         $appPath = "$buildPath\$appName.html"
         if (-not (Test-Path $appPath)) {
-            Write-Host "BUILD ERROR: App not found."
+            Write-Host "LAUNCH ERROR: $appPath not found."
             exit 1
         }
+
         emrun $appPath
     } else {
         $appPath = ".\$buildPath\$appName.exe"
         if (-not (Test-Path $appPath)) {
-            Write-Host "BUILD ERROR: App not found."
+            Write-Host "LAUNCH ERROR: $appPath not found."
             exit 1
         }
+        
         Invoke-Expression $appPath
     }
 } 
