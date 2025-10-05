@@ -49,7 +49,7 @@ cmake $buildPath -DPLATFORM="$platform" -DCMAKE_BUILD_TYPE="$buildType"
 
 # Build
 if ($otherArgs.Count -gt 0) {
-    cmake --build $buildPath -- $otherArgs
+    cmake --build $buildPath $otherArgs
 } else {
     cmake --build $buildPath
 }
@@ -59,8 +59,18 @@ if ($otherArgs.Count -gt 0) {
 #Run
 if ($shouldRun) {
     if($platform -eq "Web") {
-        emrun "$buildPath\$appName.html"
+        $appPath = "$buildPath\$appName.html"
+        if (-not (Test-Path $appPath)) {
+            Write-Host "BUILD ERROR: App not found."
+            exit 1
+        }
+        emrun $appPath
     } else {
-        Invoke-Expression ".\$buildPath\$appName.exe"
+        $appPath = ".\$buildPath\$appName.exe"
+        if (-not (Test-Path $appPath)) {
+            Write-Host "BUILD ERROR: App not found."
+            exit 1
+        }
+        Invoke-Expression $appPath
     }
 } 

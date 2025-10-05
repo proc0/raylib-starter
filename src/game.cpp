@@ -35,15 +35,13 @@ void Game::Update(){
     }
     
     if (IsKeyPressed(KEY_H)){
-        if (isCursorHidden == 0)
+        if (IsCursorHidden())
         {
-            HideCursor();
-            isCursorHidden = 1;
+            ShowCursor();
         }
         else
         {
-            ShowCursor();
-            isCursorHidden = 0;
+            HideCursor();
         }
     }
     
@@ -57,7 +55,7 @@ void Game::Render() const {
     DrawCircleV(ballPosition, 40, ballColor);
     const char* countText = TextFormat("Count: %i", count);
     DrawText(countText, 50, 50, 20, WHITE);
-    if (isCursorHidden == 1) DrawText("CURSOR HIDDEN", SCREEN_WIDTH/2-100, 60, 20, BLACK);
+    if (IsCursorHidden()) DrawText("CURSOR HIDDEN", SCREEN_WIDTH/2-100, 60, 20, BLACK);
     else DrawText("CURSOR VISIBLE", SCREEN_WIDTH/2-100, 60, 20, WHITE);
     EndDrawing();
 }

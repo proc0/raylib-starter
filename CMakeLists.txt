@@ -15,17 +15,18 @@ set(DIR_ASSETS "assets" CACHE STRING "Project assets folder name")
 set(DIR_INSTALL "dist" CACHE STRING "Project install folder name")
 set(FILE_CONFIG "config" CACHE STRING "Optional config file name in include folder")
 
-# Raylib settings - Use local if exists, if not fetch it
+# Raylib settings - use local lib if exists if both ON
 option(USE_RAYLIB_FETCH "Fetch and build from source" ON)
 # TODO: option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
-option(USE_RAYLIB_LOCAL "Find and use a local build" ON)
-# LOCAL BUILD PATHS
+option(USE_RAYLIB_LOCAL "Use a local static build" ON)
+
+#                      LOCAL LIB PATHS
+#---------------------------------------------------------------
 message(STATUS "Host System: ${CMAKE_HOST_SYSTEM_NAME}")
-# Set paths based on OS
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     set(OS Windows)
-    set(LOCAL_RAYLIB "C:/raylib/raylib/src")
-    set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
+    set(LOCAL_RAYLIB "")
+    set(LOCAL_RAYLIB_WEB "")
     set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include")
 elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     set(OS MacOS)
@@ -41,6 +42,8 @@ endif()
 
 #                      BUILD VARIABLES
 #═══════════════════════════════════════════════════════════════
+# DEFAULTS : Linux Desktop Release Build
+
 # Build type flags
 set(IS_DESKTOP OFF)
 set(IS_WEB OFF)
@@ -62,14 +65,39 @@ elseif(PLATFORM STREQUAL Web)
     set(IS_WEB ON)
 endif()
 
-# CMAKE_SYSTEM_NAME will detect Emscripten
-message(STATUS "\n-- ${CMAKE_SYSTEM_NAME} ${CMAKE_CXX_COMPILER_ID} ${PLATFORM} ${CMAKE_BUILD_TYPE} Build \n--")
-
-# libraries array
 set(LIBRARIES ${PROJECT_NAME})
 
-#                         FUNCTIONS
+# System Status
+message(STATUS "\n-- ${CMAKE_SYSTEM_NAME} ${CMAKE_CXX_COMPILER_ID} ${PLATFORM} ${CMAKE_BUILD_TYPE} Build \n--")
+
+#                      Path validations
+#---------------------------------------------------------------
+# Use local build of Raylib or fallback to fetch
+if(USE_RAYLIB_LOCAL)
+    # Raylib path - used for both desktop and web
+    if(EXISTS "${LOCAL_RAYLIB}")
+        message(STATUS "Using local Raylib: ${LOCAL_RAYLIB}")
+    elseif(USE_RAYLIB_FETCH)
+        # fallback to fetching Raylib
+        set(USE_RAYLIB_LOCAL OFF)
+    else()
+        message(FATAL_ERROR "SETTINGS ERROR: Raylib not found in: ${LOCAL_RAYLIB}, and USE_RAYLIB_FETCH is OFF!")
+    endif()
+
+    # Local Raylib Web path
+    if(USE_RAYLIB_LOCAL AND IS_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
+        message(FATAL_ERROR "SETTINGS ERROR: Raylib for Web not found in: ${LOCAL_RAYLIB_WEB}!")
+    endif()
+
+    # Emscripten include folder path
+    if(IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
+        message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path: ${LOCAL_EM_INCLUDE} does not exist!")
+    endif()
+endif()
+
+#                         UTILITIES
 #═══════════════════════════════════════════════════════════════
+
 include(FetchContent)
 function(Fetch lib url tag)
     FetchContent_Declare(${lib}
@@ -83,7 +111,7 @@ function(Fetch lib url tag)
     list(APPEND LIBRARIES ${lib})
 endfunction()
 
-#                         DEFINITION
+#                       PROJECT SETUP
 #═══════════════════════════════════════════════════════════════
 
 add_executable(${PROJECT_NAME})
@@ -102,50 +130,17 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -Wunused-result
 )
 
-#                      DEPENDENCY SETUP
+#                         LIB SETUP
 #═══════════════════════════════════════════════════════════════
 
-# Local Raylib - Use local build of Raylib or fallback to fetch
-#---------------------------------------------------------------
-# Path validations
-if(USE_RAYLIB_LOCAL)
-    # Raylib path - used for both desktop and web
-    if(EXISTS "${LOCAL_RAYLIB}")
-        message(STATUS "Using local Raylib: ${LOCAL_RAYLIB}")
-    elseif(USE_RAYLIB_FETCH)
-        # fallback to fetching Raylib
-        set(USE_RAYLIB_LOCAL OFF)
-    else()
-        message(FATAL_ERROR "SETTINGS ERROR: Local Raylib path: ${LOCAL_RAYLIB} does not exist!")
-    endif()
-
-    # Raylib Web build path
-    if(USE_RAYLIB_LOCAL AND IS_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
-        message(FATAL_ERROR "SETTINGS ERROR: Local Raylib Web path: ${LOCAL_RAYLIB_WEB} does not exist!")
-    endif()
-
-    # Emscripten include folder path
-    if(USE_RAYLIB_LOCAL AND IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
-        message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path: ${LOCAL_EM_INCLUDE} does not exist!")
-    endif()
-endif()
-
-# Fetch Raylib - download and build Raylib
-#---------------------------------------------------------------
-# TODO: fetch Emscripten and compile Raylib with Emscripten with no local EM??
+# Fetch Raylib
 if(USE_RAYLIB_FETCH)
-    if(IS_WEB)
-        message(FATAL_ERROR "WORK IN PROGRESS ERROR: Use a local Web build of Raylib and USE_RAYLIB_LOCAL set to ON, to build for Web")
-    endif()
+    Fetch(raylib "https://github.com/raysan5/raylib.git" head)
 
-    if(IS_DESKTOP)
-        Fetch(raylib "https://github.com/raysan5/raylib.git" head)
-
-        list(APPEND LIBRARIES raylib)
-    endif()
+    list(APPEND LIBRARIES raylib)
 endif()
 
-# Local Raylib Desktop Setup
+# Local Static Raylib Desktop Setup
 if(USE_RAYLIB_LOCAL AND IS_DESKTOP)
     find_library(PATH_RAYLIB raylib PATHS "${LOCAL_RAYLIB}" REQUIRED NO_CMAKE_FIND_ROOT_PATH)
 
@@ -161,7 +156,7 @@ if(USE_RAYLIB_LOCAL AND IS_DESKTOP)
     endif()
 endif()
 
-# Local Raylib Web Setup
+# Local Static Raylib Web Setup
 if(USE_RAYLIB_LOCAL AND IS_WEB)
     message(STATUS "Using local Raylib Web: ${LOCAL_RAYLIB_WEB}")
 
@@ -169,52 +164,64 @@ if(USE_RAYLIB_LOCAL AND IS_WEB)
 
     add_library(raylib STATIC IMPORTED)
     set_target_properties(raylib PROPERTIES IMPORTED_LOCATION "${PATH_RAYLIB_WEB}")
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
 
-    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}" PRIVATE "${LOCAL_EM_INCLUDE}")
-
-    if(IS_DEBUG)
-        # FULL_ES3 requires Raylib to be compiled for Web with OpenGL ES3 (see README requirements)
-        target_link_options(${PROJECT_NAME} PRIVATE 
-            -sFULL_ES3 
-            -sUSE_GLFW=3 
-            -sASYNCIFY
-            -sWASM=1
-            -sEXPORT_ES6=1
-            -sGL_ENABLE_GET_PROC_ADDRESS=1
-            -sTOTAL_MEMORY=67108864 
-            -sFORCE_FILESYSTEM=1
-            -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
-            --preload-file "../${DIR_ASSETS}" 
-            --shell-file "${LOCAL_RAYLIB}/shell.html"
-            --emrun
-        )
-    else()
-        # FULL_ES3 requires Raylib to be compiled for Web with OpenGL ES3 (see README requirements)
-        target_link_options(${PROJECT_NAME} PRIVATE 
-            -sFULL_ES3 
-            -sUSE_GLFW=3 
-            -sASYNCIFY
-            -sWASM=1
-            -sEXPORT_ES6=1
-            -sGL_ENABLE_GET_PROC_ADDRESS=1
-            -sTOTAL_MEMORY=67108864 
-            -sFORCE_FILESYSTEM=1
-            -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
-            --preload-file "../${DIR_ASSETS}" 
-            --shell-file "${LOCAL_RAYLIB}/minshell.html" 
-        )
-    endif()
+    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_RAYLIB}")
 
     list(APPEND LIBRARIES raylib)
 endif()
 
-#                      LINK LIBRARIES
+if(IS_WEB)
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
+    target_include_directories(${PROJECT_NAME} PRIVATE "${LOCAL_EM_INCLUDE}")
+
+    if(USE_RAYLIB_FETCH)
+        target_compile_options(raylib PRIVATE 
+            -Os 
+            -Wall 
+            -DPLATFORM_WEB 
+            -DGRAPHICS_API_OPENGL_ES3
+        )
+    endif()
+
+    if(IS_DEBUG)
+        set(FILE_WEB_SHELL "shell.html")
+    else()
+        set(FILE_WEB_SHELL "minshell.html")
+    endif()
+
+    if(USE_RAYLIB_LOCAL)
+        set(PATH_WEB_SHELL "${LOCAL_RAYLIB}/${FILE_WEB_SHELL}")
+    else()
+        set(PATH_WEB_SHELL "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raylib-src/src/${FILE_WEB_SHELL}")
+    endif()
+
+    # FULL_ES3 requires Raylib to be compiled for Web with OpenGL ES3 (see README requirements)
+    target_link_options(${PROJECT_NAME} PRIVATE 
+        -sFULL_ES3 
+        -sUSE_GLFW=3 
+        -sASYNCIFY
+        -sWASM=1
+        -sEXPORT_ES6=1
+        -sGL_ENABLE_GET_PROC_ADDRESS=1
+        -sTOTAL_MEMORY=67108864 
+        -sFORCE_FILESYSTEM=1
+        -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF32 
+        --preload-file "../${DIR_ASSETS}"
+        --shell-file "${PATH_WEB_SHELL}"
+    )
+
+    if(IS_DEBUG)
+        target_link_options(${PROJECT_NAME} PRIVATE --emrun)
+    endif()
+
+endif()
+
+#                         LIB LINK
 #═══════════════════════════════════════════════════════════════
 
 target_link_libraries(${LIBRARIES})
 
-#                      BUILD REFLECTION
+#                     BUILD INFO CONFIG
 #═══════════════════════════════════════════════════════════════
 # Get current datetime
 execute_process(COMMAND date "+%Y-%m-%d %H:%M:%S" OUTPUT_VARIABLE OUTPUT_DATE)
