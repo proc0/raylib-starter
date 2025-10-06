@@ -7,18 +7,45 @@ This is a project template for building with Raylib in C++. It supports linking 
 ## Quick Start (Desktop Debug Build)
 
 1. **clone** this repo
-   `git clone --depth=1 https://github.com/proc0/raystart.git`
+
+```shell
+git clone --depth=1 https://github.com/proc0/raystart.git`
+```
+
 2. **rename** folder to project name
-   Linux/Mac: `mv raystart mygame`
-   Windows: `ren raystart mygame`
+
+#### Linux/Mac
+
+```bash
+mv raystart mygame
+```
+
+#### Windows
+
+```powershell
+ren raystart mygame
+```
+
 3. **navigate** into project folder
-   `cd mygame`
-4. **build** using build script
-   Linux/Mac: `chmod +x ./build.sh` once, and then `./build.sh`
-   Windows: `.\build.ps1`
-5. **run**
-   Linux/Mac: `./build/mygame`
-   Windows: `.\build\mygame.exe`
+
+```shell
+cd mygame
+```
+
+4. **build** and **run** using build script
+
+#### Linux/Mac
+
+```bash
+chmod +x ./build.sh
+./build.sh --run
+```
+
+#### Windows
+
+```powershell
+.\build.ps1 --run
+```
 
 Sample Output:
 
@@ -58,8 +85,8 @@ Sample Output:
 
 ## Requirements
 
-[CMake](https://cmake.org)
-[Emscripten](https://emscripten.org)
+- [CMake](https://cmake.org)
+- [Emscripten](https://emscripten.org)
 
 Tested with the following compilers and toolchains (WIP):
 
@@ -100,7 +127,8 @@ Substitute `./build.sh` for `.\build.ps1` on Windows.
 ## Resources
 
 - [Raylib](https://github.com/raysan5/raylib)
-- [Raylib built for web](<https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5)>)
+- [Raylib Web build instructions](<https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5)>)
+- [Emscripten](https://emscripten.org)
 
 ## Folder structure
 
