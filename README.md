@@ -2,31 +2,23 @@
 
 Raylib C++ Starter Project
 
-## Quick Start (Desktop Debug)
+This is a project template for building with Raylib in C++. It supports linking to an existing build of Raylib on your local machine, or falls back to fetching Raylib and building from source. All three major systems are supported, Windows, MacOS, Linux, and it targets Desktop, and Web using Emscripten. It also has some initial Raylib boilerplate for a cross-platform game (Desktop and Web, more targets in the future).
+
+## Quick Start (Desktop Debug Build)
 
 1. **clone** this repo
+   `git clone --depth=1 https://github.com/proc0/raystart.git`
 2. **rename** folder to project name
+   Linux/Mac: `mv raystart mygame`
+   Windows: `ren raystart mygame`
 3. **navigate** into project folder
-4. **run** ([\*nix] make build script executable) build script
-
-#### \*nix
-
-```bash
-git clone --depth=1 https://github.com/proc0/raystart.git
-move raystart mygame
-cd mygame
-chmod +x ./build.sh
-./build.sh
-```
-
-#### Windows
-
-```shell
-git clone --depth=1 https://github.com/proc0/raystart.git
-ren raystart mygame
-cd mygame
-.\build.ps1
-```
+   `cd mygame`
+4. **build** using build script
+   Linux/Mac: `chmod +x ./build.sh` once, and then `./build.sh`
+   Windows: `.\build.ps1`
+5. **run**
+   Linux/Mac: `./build/mygame`
+   Windows: `.\build\mygame.exe`
 
 Sample Output:
 
@@ -47,39 +39,63 @@ Sample Output:
 [100%] Built target raystart
 </pre>
 
-This builds a _Desktop Debug_ version for the target platform.
-Now just run the executable from the build folder.
-
-`./build/raystart` or `.\build\raystart.exe`
-
 ## Features
 
 - Multiple ways to use Raylib
-  - Use a local build (path in CMakeLists)
-  - Fetch and build from source
-  - Fetch and build a custom build (WIP)
+  - Use a local build (set path in CMakeLists)
+  - Fetch and build Raylib from source
+  - Fetch and build a custom Raylib build (WIP/TBD)
 - Flexible build configuration
   - Change folder names easily
-  - Add build info in config file for use in source code
-- Supports mulitple platforms and target
-  - Windows, MacOS, Linux
-  - Desktop, Web (with Emscripten)
-- Simple build script
+- Supports saving build info in a config file (Optional)
+  - Copies build type info, i.e. Debug or Release, for use in app logic
+- Supports mulitple platforms and targets
+  - Platforms: Windows, MacOS, Linux
+  - Targets: Desktop, Web (with Emscripten)
+- Ergonomic build script
+  - Abstracts CMake commands
+  - Intuitive parameters for build options
 
 ## Requirements
 
+[CMake](https://cmake.org)
+[Emscripten](https://emscripten.org)
+
+Tested with the following compilers and toolchains (WIP):
+
+- Linux / MacOS
+  - g++
+  - make
 - Windows
   - [w64devkit](https://github.com/skeeto/w64devkit)
-  - [CMake](https://cmake.org)
-  - [Emscripten](https://emscripten.org)
-- Linux (WIP)
-  - g++
-  - make
-  - [CMake](https://cmake.org)
-- Mac (WIP)
-  - g++
-  - make
-  - [CMake](https://cmake.org)
+
+## Build Command Examples
+
+Substitute `./build.sh` for `.\build.ps1` on Windows.
+
+#### Build Desktop Release
+
+`./build.sh --release`
+
+#### Build Desktop Debug and Run
+
+`./build.sh --run`
+
+#### Build Web Debug and Run
+
+`./build.sh --web --run`
+
+#### Build Web Release
+
+`./build.sh --web --release`
+
+#### Build Desktop Debug with CMake arguments
+
+`./build.sh --verbose`
+
+#### Build Desktop Release, with CMake arguments and run
+
+`./build.sh --release --run --verbose`
 
 ## Resources
 
@@ -107,5 +123,5 @@ build{.sh|.bat} [--web] [--release] [--run] [OPTIONS]
 --web: build for web using Emscripten
 --release: build for release
 --run: run executable after build
-OPTIONS: additional options given to CMake build command
+OPTIONS: additional options passed to CMake build command
 </pre>
