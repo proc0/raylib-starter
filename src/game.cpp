@@ -70,6 +70,11 @@ void Game::Render() const {
             const char* spacebarText = TextFormat("SPACEBAR");
             DrawText(spacebarText, screenWidth/2-100, screenHeight/2-100, 60, WHITE);
         }
+        const char text[64] = "Type here";
+        if (GuiTextBox((Rectangle){screenWidth / 2 - 200, 250, 50, 200}, text, sizeof(text), editMode))
+        {
+            editMode = !editMode;
+        }
         const char* countText = TextFormat("Count: %i", count);
         DrawText(countText, 50, 50, 20, WHITE);
         if (IsCursorHidden()) {

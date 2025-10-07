@@ -4,6 +4,7 @@
 #include <emscripten.h>
 #endif
 #include <raylib.h>
+#include <raygui.h>
 #include <string>
 
 #include "config.h"
@@ -19,6 +20,7 @@ class Game {
     Sound splat;
     bool spacePressed = false;
     int spaceTimelapse = 60;
+    bool editMode = false;
 
     public:
         int screenWidth = SCREEN_WIDTH;
