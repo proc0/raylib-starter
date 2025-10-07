@@ -18,7 +18,7 @@ set(FILE_CONFIG "config" CACHE STRING "Optional config file name in include fold
 # Raylib settings - defaults to local lib if exists
 option(USE_RAYLIB_FETCH "Fetch and build from source" ON)
 # TODO: option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
-option(USE_RAYLIB_LOCAL "Use a local static build" ON)
+option(USE_RAYLIB_LOCAL "Use a local static build" OFF)
 
 #                      LOCAL LIB PATHS
 #---------------------------------------------------------------
@@ -26,8 +26,8 @@ message(STATUS "Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 # LOCAL_EM_INCLUDE - Emscripten Include path REQUIRED for WEB
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     set(OS Windows)
-    set(LOCAL_RAYLIB "C:/raylib/raylib/src")
-    set(LOCAL_RAYLIB_WEB "C:/raylib/raylib/src/web")
+    set(LOCAL_RAYLIB "")
+    set(LOCAL_RAYLIB_WEB "")
     set(LOCAL_EM_INCLUDE "C:/emsdk/upstream/emscripten/cache/sysroot/include")
 elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     set(OS MacOS)

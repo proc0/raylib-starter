@@ -32,6 +32,17 @@ void Game::Update(){
     if(IsKeyPressed(KEY_SPACE)){
         count++;
         PlaySound(splat);
+
+        if(!spacePressed){
+            spacePressed = true;
+        }
+    }
+
+    if(spaceTimelapse < 0){
+        spaceTimelapse = 60;
+        spacePressed = false;
+    } else if(spacePressed == true){
+        spaceTimelapse -= 1;
     }
     
     if (IsKeyPressed(KEY_H)){
@@ -55,6 +66,10 @@ void Game::Render() const {
         
         DrawCircleV(GetMousePosition(), 40, YELLOW);
 
+        if(spacePressed){
+            const char* spacebarText = TextFormat("SPACEBAR");
+            DrawText(spacebarText, screenWidth/2-100, screenHeight/2-100, 60, WHITE);
+        }
         const char* countText = TextFormat("Count: %i", count);
         DrawText(countText, 50, 50, 20, WHITE);
         if (IsCursorHidden()) {

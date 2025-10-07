@@ -17,7 +17,9 @@
 class Game {
     int count;
     Sound splat;
-    
+    bool spacePressed = false;
+    int spaceTimelapse = 60;
+
     public:
         int screenWidth = SCREEN_WIDTH;
         int screenHeight = SCREEN_HEIGHT;
