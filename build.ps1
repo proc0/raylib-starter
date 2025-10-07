@@ -44,14 +44,29 @@ if (-not (Test-Path $buildPath)) {
     }
 }
 
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "CONFIGURE ERROR"
+    exit 1
+}
+
 # Generate
 cmake $buildPath -DPLATFORM="$platform" -DCMAKE_BUILD_TYPE="$buildType"
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "GENERATE ERROR"
+    exit 1
+}
 
 # Build
 if ($otherArgs.Count -gt 0) {
     cmake --build $buildPath $otherArgs
 } else {
     cmake --build $buildPath
+}
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "BUILD ERROR"
+    exit 1
 }
 
 #Install

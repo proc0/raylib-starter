@@ -32,11 +32,26 @@ if [ ! -d "$BUILD_PATH" ]; then
   fi
 fi
 
+if [ $? ! -eq 0 ]; then
+  echo >&2 "CONFIGURE ERROR"
+  exit 1
+fi
+
 # Generate
 cmake $BUILD_PATH -DPLATFORM=$PLATFORM -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
+if [ $? ! -eq 0 ]; then
+  echo >&2 "GENERATE ERROR"
+  exit 1
+fi
+
 # Build
 cmake --build $BUILD_PATH "$@"
+
+if [ $? ! -eq 0 ]; then
+  echo >&2 "BUILD ERROR"
+  exit 1
+fi
 
 # Install
 # cmake --install $BUILD_PATH
