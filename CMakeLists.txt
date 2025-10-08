@@ -108,8 +108,6 @@ function(Fetch lib url tag)
         GIT_PROGRESS   TRUE
     )
     FetchContent_MakeAvailable(${lib})
-
-    list(APPEND LIBRARIES ${lib})
 endfunction()
 
 #                       PROJECT SETUP
@@ -137,8 +135,10 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 # Fetch Raylib
 if(USE_RAYLIB_FETCH)
     Fetch(raylib "https://github.com/raysan5/raylib.git" head)
-
     list(APPEND LIBRARIES raylib)
+
+    Fetch(raygui "https://github.com/raysan5/raygui.git" head)
+    list(APPEND LIBRARIES raygui)
 endif()
 
 # Local Static Raylib Desktop Setup
@@ -182,6 +182,13 @@ if(IS_WEB)
             -DPLATFORM_WEB 
             -DGRAPHICS_API_OPENGL_ES3
         )
+
+        # add_library(raygui INTERFACE)
+        target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raygui-src/src")
+        # target_link_libraries(raygui INTERFACE raylib)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE RAYGUI_IMPLEMENTATION)
+        # target_link_options(raygui PRIVATE LANGUAGES C)
+        # target_compile_options(raygui INTERFACE -DRAYGUI_IMPLEMENTATION -DBUILD_LIBTYPE_SHARED)
     endif()
 
     if(IS_DEBUG)
