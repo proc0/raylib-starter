@@ -184,6 +184,8 @@ if(IS_WEB)
             -DGRAPHICS_API_OPENGL_ES3
         )
 
+        # TODO: COPY raygui.h into raygui.c, this step was done manually, needs a CMake command here
+        # NOTE: This adds raygui as a static dependency and builds with Emscripten
         add_library(raygui STATIC "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raygui-src/src/raygui.c")
         target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raygui-src/src")
         target_include_directories(raygui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raylib-src/src")
