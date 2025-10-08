@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include <raygui.h>
 
 #if __EMSCRIPTEN__
 EM_JS(int, getBrowserWidth, (), {
@@ -72,7 +73,7 @@ void Game::Render() const {
         }
 
         char * placeholderText = "Type here";
-        GuiTextBox((Rectangle){200, 250, 50, 200}, placeholderText, 20, true);
+        GuiTextBox((Rectangle){float(screenWidth/2-10), 100, 200, 50}, placeholderText, 20, true);
 
         const char* countText = TextFormat("Count: %i", count);
         DrawText(countText, 50, 50, 20, WHITE);

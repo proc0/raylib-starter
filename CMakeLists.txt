@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 #═══════════════════════════════════════════════════════════════
 set(PROJECT_VERSION "0.1.0")
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
-project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_NAME} LANGUAGES CXX)
+project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_NAME} LANGUAGES C CXX)
 
 #                         SETTINGS
 #═══════════════════════════════════════════════════════════════
@@ -135,6 +135,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 # Fetch Raylib
 if(USE_RAYLIB_FETCH)
     Fetch(raylib "https://github.com/raysan5/raylib.git" head)
+    # add_library(raylib)
     list(APPEND LIBRARIES raylib)
 
     Fetch(raygui "https://github.com/raysan5/raygui.git" head)
@@ -183,9 +184,10 @@ if(IS_WEB)
             -DGRAPHICS_API_OPENGL_ES3
         )
 
-        # add_library(raygui INTERFACE)
-        target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raygui-src/src")
-        # target_link_libraries(raygui INTERFACE raylib)
+        add_library(raygui STATIC "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raygui-src/src/raygui.c")
+        target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raygui-src/src")
+        target_include_directories(raygui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raylib-src/src")
+        # target_link_libraries(raygui STATIC "${CMAKE_CURRENT_SOURCE_DIR}/build-web/_deps/raylib-build/raylib/libraylib.a")
         target_compile_definitions(${PROJECT_NAME} PRIVATE RAYGUI_IMPLEMENTATION)
         # target_link_options(raygui PRIVATE LANGUAGES C)
         # target_compile_options(raygui INTERFACE -DRAYGUI_IMPLEMENTATION -DBUILD_LIBTYPE_SHARED)

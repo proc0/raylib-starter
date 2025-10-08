@@ -4,7 +4,7 @@
 #include <emscripten.h>
 #endif
 #include <raylib.h>
-#include <raygui.h>
+
 #include <string>
 
 #include "config.h"
