@@ -78,6 +78,8 @@ if(USE_RAYLIB_LOCAL)
     # Raylib path - used for both desktop and web
     if(EXISTS "${LOCAL_RAYLIB}")
         message(STATUS "Using local Raylib: ${LOCAL_RAYLIB}")
+        # use local only
+        set(USE_RAYLIB_FETCH OFF)
     elseif(USE_RAYLIB_FETCH)
         # fallback to fetching Raylib
         set(USE_RAYLIB_LOCAL OFF)
@@ -89,11 +91,11 @@ if(USE_RAYLIB_LOCAL)
     if(USE_RAYLIB_LOCAL AND IS_WEB AND NOT EXISTS "${LOCAL_RAYLIB_WEB}")
         message(FATAL_ERROR "SETTINGS ERROR: Raylib for Web not found!: ${LOCAL_RAYLIB_WEB}")
     endif()
-
-    # Emscripten include folder path
-    if(IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
-        message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path not found!: ${LOCAL_EM_INCLUDE}")
-    endif()
+endif()
+    
+# Emscripten include folder path for both local and remote Raylib
+if(IS_WEB AND NOT EXISTS "${LOCAL_EM_INCLUDE}")
+    message(FATAL_ERROR "SETTINGS ERROR: Emscripten include path not found!: ${LOCAL_EM_INCLUDE}")
 endif()
 
 #                         UTILITIES
@@ -108,8 +110,6 @@ function(Fetch lib url tag)
         GIT_PROGRESS   TRUE
     )
     FetchContent_MakeAvailable(${lib})
-
-    list(APPEND LIBRARIES ${lib})
 endfunction()
 
 #                       PROJECT SETUP
